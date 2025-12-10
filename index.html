@@ -9,46 +9,40 @@
     <link rel="stylesheet" href="src/css/style.css">
 </head>
 <body>
-
+    <!-- 頁頭標題 -->
     <header id="top-header">
         <h1>靈魂羅盤</h1>
     </header>
 
-    <div class="grid-container" id="card-grid">
-        <svg id="connection-layer" width="100%" height="100%" style="position:absolute; top:0; left:0; z-index:1; pointer-events:none; overflow:visible;">
-            <line id="line-left" x1="0" y1="0" x2="0" y2="0" stroke="url(#grad1)" stroke-width="3" stroke-linecap="round" opacity="0" filter="url(#glow)"/>
-            <line id="line-right" x1="0" y1="0" x2="0" y2="0" stroke="url(#grad1)" stroke-width="3" stroke-linecap="round" opacity="0" filter="url(#glow)"/>
-            <defs>
-                <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="0%">
-                    <stop offset="0%" style="stop-color:#ffd700;stop-opacity:0.1" />
-                    <stop offset="50%" style="stop-color:#fff;stop-opacity:1" />
-                    <stop offset="100%" style="stop-color:#ffd700;stop-opacity:0.1" />
-                </linearGradient>
-                <filter id="glow"><feGaussianBlur stdDeviation="3" result="coloredBlur"/><feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
-            </defs>
-        </svg>
+    <!-- 卡片容器（中間區域） -->
+    <div class="card-container" id="card-container">
+        <!-- 卡片會由JS動態生成 -->
     </div>
 
-    <div id="bottom-prompt">
-        <p class="subtitle">你的靈魂，正在召喚哪個遠方？</p>
+    <!-- 底部詢問文字（不會被覆蓋） -->
+    <div id="question-text">
+        <p>你的靈魂，正在召喚哪個遠方？</p>
+        <p class="subtext">請選擇3張牌，探索你的命定旅程</p>
     </div>
 
-    <button id="shuffle-btn" onclick="location.reload()">↻ 重新洗牌</button>
+    <!-- 洗牌按鈕 -->
+    <button id="shuffle-btn">↻ 重新洗牌</button>
 
-    <div id="result-overlay">
-        <div class="result-box">
-            <span class="close-btn" id="close-btn">×</span>
-            
-            <div id="three-cards-area"></div> 
-            
-            <div class="result-content">
-                <div class="dest-name reveal-pending" id="r-dest"></div>
-                <div class="quote" id="r-quote"></div>
-                <a href="#" class="btn-line reveal-pending" id="cta-btn" target="_blank">現在安排旅程 (洽詢 LINE) ➔</a>
+    <!-- 結果彈窗 -->
+    <div id="result-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn">&times;</span>
+            <div class="result-cards">
+                <!-- 選中的3張牌會顯示在這裡 -->
             </div>
+            <div class="result-text">
+                <h3 id="dest-name"></h3>
+                <p id="dest-desc"></p>
+            </div>
+            <a href="https://line.me/" class="line-btn" target="_blank">洽詢旅程安排</a>
         </div>
     </div>
 
-    <script type="module" src="src/js/main.js"></script>
+    <script src="src/js/main.js"></script>
 </body>
 </html>
