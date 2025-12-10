@@ -12,26 +12,25 @@
 body {
     font-family: "PingFang TC", "Microsoft JhengHei", sans-serif;
     background-color: var(--bg);
-    /* 背景加入神祕的紫色光暈 */
     background-image: radial-gradient(circle at 50% 70%, #2a1a3e 0%, #000000 80%);
     color: var(--primary);
     text-align: center;
     margin: 0;
     padding: 0;
     height: 100vh;
-    overflow: hidden; /* 禁止頁面捲動 */
+    overflow: hidden;
     position: relative;
 }
 
 /* =========================================
-   2. 標題區 (Header)
+   2. 標題區
    ========================================= */
 #intro {
     position: absolute;
-    top: 15%; /* 標題位置 */
+    top: 15%;
     width: 100%;
     z-index: 5;
-    pointer-events: none; /* 讓點擊穿透文字 */
+    pointer-events: none;
 }
 
 h1 {
@@ -52,7 +51,7 @@ p.subtitle {
 }
 
 /* =========================================
-   3. 重新洗牌按鈕 (Reshuffle Button)
+   3. 按鈕
    ========================================= */
 button {
     position: fixed;
@@ -61,7 +60,7 @@ button {
     z-index: 5000;
     background: rgba(20, 10, 30, 0.6);
     border: 1px solid var(--accent);
-    color: #fff; /* 確保文字是白色 */
+    color: #fff;
     padding: 10px 25px;
     border-radius: 50px;
     cursor: pointer;
@@ -80,11 +79,10 @@ button:hover {
 }
 
 /* =========================================
-   4. 牌桌容器 (Deck Container)
+   4. 牌桌容器
    ========================================= */
 .grid-container {
     position: absolute;
-    /* 扇形位置設定在下方 75% 處 */
     top: 75%; 
     left: 50%;
     transform: translate(-50%, -50%);
@@ -99,21 +97,18 @@ button:hover {
 }
 
 /* =========================================
-   5. 卡片設計 (Card Styling)
+   5. 卡片設計
    ========================================= */
 .card {
     position: absolute;
     width: 130px;
     height: 200px;
-    
-    /* 牌背漸層與邊框 */
     background: linear-gradient(135deg, #4a1c40 0%, #250935 100%);
     border: 2px solid var(--gold);
     box-shadow: 0 0 15px rgba(0,0,0,0.8);
     border-radius: 12px;
     transform-origin: bottom center;
     
-    /* 初始位置 */
     left: 50%;
     bottom: 0;
     margin-left: -65px;
@@ -123,14 +118,12 @@ button:hover {
     pointer-events: auto;
     z-index: 100;
     
-    /* 牌背紋理 */
     background-image: 
         linear-gradient(135deg, rgba(255,215,0,0.1) 25%, transparent 25%, transparent 50%, rgba(255,215,0,0.1) 50%, rgba(255,215,0,0.1) 75%, transparent 75%, transparent),
         linear-gradient(135deg, #4a1c40 0%, #180529 100%);
     background-size: 10px 10px, 100% 100%;
 }
 
-/* 牌背中間的星星 */
 .card::after {
     content: "✦";
     font-size: 2.5rem;
@@ -142,30 +135,20 @@ button:hover {
     opacity: 0.8;
 }
 
-/* Hover 效果 */
 .card:hover {
     z-index: 1000 !important;
     border-color: #fff;
     filter: brightness(1.2);
 }
 
-/* --- 動畫狀態 Class --- */
+/* 動畫狀態 */
+.card.picked { }
 
-/* 已選取 (Picked)：標記用，稍微上浮 */
-.card.picked {
-    /* 這裡不需要特別樣式，JS 會直接寫入 transform */
-}
-
-/* 被選中 (Selected)：聖三角飛行定位 */
-/* 這裡很重要：我們只設定基準點，讓 JS 的 translate 生效 */
 .card.selected {
     position: fixed;
     top: 50%; 
     left: 50%;
     margin: 0;
-    
-    /* 不要在這裡寫 transform !important，因為 JS 會分別控制三張牌的位置 */
-    
     z-index: 2000;
     box-shadow: 0 0 40px var(--gold);
     border: 3px solid #fff;
@@ -173,14 +156,10 @@ button:hover {
     transition: all 0.8s cubic-bezier(0.2, 1, 0.3, 1);
 }
 
-/* 翻轉中 (轉側面) */
 .card.flipping {
-    /* 保留原本的位移，只改變旋轉 */
-    /* 注意：因為 JS 寫死 transform，這裡主要靠 JS toggle class 配合 transition */
     transform: translate(-50%, -50%) scale(1.4) rotateY(90deg) !important;
 }
 
-/* 已揭曉 (轉正面) */
 .card.revealed {
     transform: translate(-50%, -50%) scale(1.4) rotateY(0deg) !important;
     background-color: #000;
@@ -192,7 +171,6 @@ button:hover {
 }
 .card.revealed::after { opacity: 0; }
 
-/* 淡出 (未選中的牌) */
 .card.fade-out {
     opacity: 0;
     pointer-events: none;
@@ -207,7 +185,7 @@ button:hover {
     display: none;
     position: fixed;
     top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(5, 5, 10, 0.85);
+    background: rgba(5, 5, 10, 0.9); /* 背景更加深，專注文字 */
     backdrop-filter: blur(10px);
     z-index: 9999;
     align-items: center;
@@ -224,7 +202,7 @@ button:hover {
     border-radius: 16px;
     max-width: 800px;
     width: 100%;
-    max-height: 90vh; /* 防止超出螢幕 */
+    max-height: 90vh;
     
     border: 1px solid var(--accent);
     box-shadow: 0 0 40px rgba(100, 50, 200, 0.4);
@@ -237,7 +215,6 @@ button:hover {
     overflow: hidden; 
 }
 
-/* 圖片區 */
 .tarot-img-container { 
     flex: 1; 
     display: flex; 
@@ -256,7 +233,6 @@ button:hover {
     border: 2px solid var(--gold);
 }
 
-/* 文字內容區 */
 .result-content { 
     flex: 1.5; 
     display: flex; 
@@ -272,54 +248,61 @@ button:hover {
     margin-bottom: 5px; 
 }
 
-/* 目的地名稱 (含國旗) */
 .dest-name { 
     font-size: 2rem; 
     font-weight: 800; 
     margin: 0 0 15px 0; 
-    
-    /* 金色漸層字 */
     background: linear-gradient(45deg, #fff 30%, var(--gold) 100%);
     -webkit-background-clip: text; 
     -webkit-text-fill-color: transparent;
     line-height: 1.2;
-    
-    /* 讓國旗圖片與文字水平排列 */
     display: flex;
     align-items: center;
     gap: 15px;
 }
 
-/* ★★★ 國旗圖片專用樣式 ★★★ */
 .flag-icon {
     height: 36px;
     width: auto;
     border-radius: 4px;
     box-shadow: 0 0 8px rgba(255, 255, 255, 0.2);
     border: 1px solid rgba(255,255,255,0.2);
-    
-    /* 修正漸層字導致圖片透明的問題 */
     -webkit-text-fill-color: initial;
     background: none;
 }
 
 .quote { 
-    font-size: 0.95rem; 
+    font-size: 1rem; /* 字稍微放大一點方便閱讀 */
     color: #ddd; 
     line-height: 1.6; 
     margin-bottom: 20px; 
     border-left: 3px solid var(--gold); 
     padding-left: 15px;
-    
-    /* 限制行數 (選用) */
-    display: -webkit-box;
-    -webkit-line-clamp: 6; /* 增加行數以容納分析文案 */
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-    white-space: pre-line; /* 讓 \n 換行生效 */
+    min-height: 100px; /* 預留高度給打字效果 */
+    white-space: pre-wrap; /* 保留換行 */
 }
 
-/* LINE 按鈕 */
+/* ★★★ 新增：揭曉動畫樣式 ★★★ */
+/* 初始隱藏狀態 */
+.reveal-pending {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 1s ease, transform 1s ease;
+}
+
+/* 顯示狀態 */
+.reveal-show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* 打字游標特效 (選用) */
+.typing-cursor::after {
+    content: '|';
+    animation: blink 0.8s infinite;
+}
+@keyframes blink { 50% { opacity: 0; } }
+
 .btn-line {
     background-color: var(--line-green); 
     color: #fff; 
@@ -335,30 +318,25 @@ button:hover {
 }
 .btn-line:hover { background-color: #05b34c; transform: translateY(-2px); }
 
-/* 關閉按鈕 */
 .close-btn { position: absolute; top: 15px; right: 20px; font-size: 24px; color: #888; cursor: pointer; }
 .close-btn:hover { color: #fff; }
 
 @keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
 
-/* =========================================
-   7. 手機版適配 (RWD)
-   ========================================= */
+/* RWD */
 @media (max-width: 768px) {
     #intro { top: 10%; }
     h1 { font-size: 1.8rem; letter-spacing: 5px; }
     
-    /* 扇形高度調整 */
     .grid-container { top: 70%; height: 400px; }
     .card { width: 90px; height: 140px; margin-left: -45px; }
 
-    /* 結果彈窗改為直式 */
     .result-box { 
         flex-direction: column; 
         text-align: center; 
         padding: 20px; 
         gap: 15px;
-        overflow-y: auto; /* 允許內部捲動 */
+        overflow-y: auto; 
     }
     
     .tarot-img-container { flex: 0 0 auto; }
@@ -367,31 +345,25 @@ button:hover {
         max-height: 200px; 
     }
 
-    .result-content { 
-        align-items: center; 
-        width: 100%;
-    }
+    .result-content { align-items: center; width: 100%; }
 
-    /* 手機版國旗與文字 */
     .dest-name { 
         font-size: 1.6rem; 
         margin-bottom: 10px; 
-        flex-direction: column; /* 國旗改到文字上方 */
+        flex-direction: column; 
         gap: 8px;
     }
     .flag-icon { height: 32px; }
 
     .quote { 
-        font-size: 0.85rem; 
+        font-size: 0.9rem; 
         border-left: none; 
         border-top: 2px solid var(--gold); 
         padding-top: 10px; 
         padding-left: 0; 
         margin-bottom: 15px;
-        -webkit-line-clamp: 8; /* 手機版多留一點空間給文字 */
     }
 
     .btn-line { width: 100%; justify-content: center; }
-    
     button { bottom: 20px; right: 20px; font-size: 0.8rem; padding: 8px 15px; }
 }
