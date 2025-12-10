@@ -5,14 +5,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const overlay = document.getElementById('result-overlay');
     const closeBtn = document.getElementById('close-btn');
     const ctaBtn = document.getElementById('cta-btn');
-    const resultImg = document.getElementById('r-img');
+    // const resultImg = document.getElementById('r-img'); // 這個不再需要了
     const titleText = document.querySelector('p.subtitle');
     const introBox = document.getElementById('intro');
     const quoteBox = document.getElementById('r-quote');
     const destBox = document.getElementById('r-dest');
-    const cardNameBox = document.getElementById('r-card');
-    const imgContainer = document.querySelector('.tarot-img-container');
-    
+    // const cardNameBox = document.getElementById('r-card'); // 這個也不需要了
+    // const imgContainer = document.querySelector('.tarot-img-container'); // 換成新的容器處理
+
     // SVG Lines
     const lineLeft = document.getElementById('line-left');
     const lineRight = document.getElementById('line-right');
@@ -42,10 +42,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function initGame() {
-        container.innerHTML = ''; // 清空卡牌
-        // 重置連線
-        lineLeft.setAttribute('opacity', '0');
-        lineRight.setAttribute('opacity', '0');
+        container.innerHTML = ''; 
+        if(lineLeft) lineLeft.setAttribute('opacity', '0');
+        if(lineRight) lineRight.setAttribute('opacity', '0');
 
         selectedCards = []; 
         introBox.style.opacity = '1';
@@ -53,9 +52,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const deck = shuffle([...tarotData]);
         const totalCards = deck.length;
-        const arcAngle = 100;
-        const angleStep = arcAngle / (totalCards - 1);
-        const startAngle = -arcAngle / 2;
+        const angleStep = 100 / (totalCards - 1);
+        const startAngle = -50;
 
         deck.forEach((item, index) => {
             let card = document.createElement('div');
@@ -70,15 +68,8 @@ document.addEventListener('DOMContentLoaded', () => {
             setTimeout(() => { card.style.transform = `rotate(${rotateAngle}deg) translateY(0) scale(1)`; }, 100 + (index * 30));
         });
         
-        // 確保 SVG 容器在卡片下方 (z-index 已經設為 1，卡片是 100)
-        // 但要確保 SVG 沒有被清空，因為它在 container 外面 (不，它在裡面)
-        // 修正：我們的 HTML 結構中 SVG 在 container 裡。
-        // 上面的 container.innerHTML = '' 會把 SVG 刪掉！
-        // 解決：重新把 SVG 加回去，或者用 appendChild 加卡片時不要清空整個 innerHTML
-        // 為了簡單，我們這裡把 SVG 重新寫入
+        // 確保 SVG 存在
         if (!document.getElementById('connection-layer')) {
-             // 其實更好的是把 SVG 放在 HTML 裡 container 的旁邊，而不是裡面
-             // 但為了不改 HTML 結構太複雜，我們用 JS 補回去
              const svgHTML = `
                 <svg id="connection-layer" width="100%" height="100%" style="position:absolute; top:0; left:0; z-index:1; pointer-events:none; overflow:visible;">
                     <line id="line-left" x1="0" y1="0" x2="0" y2="0" stroke="url(#grad1)" stroke-width="3" stroke-linecap="round" opacity="0" filter="url(#glow)"/>
@@ -101,6 +92,7 @@ document.addEventListener('DOMContentLoaded', () => {
         card.classList.add('picked');
         selectedCards.push({ cardDom: card, data: data, angle: originalAngle });
         const pickCount = selectedCards.length;
+        
         card.style.transform = `rotate(${originalAngle}deg) translateY(-60px) scale(1.1)`;
         card.style.borderColor = 'var(--gold)';
         card.style.boxShadow = '0 0 20px var(--gold)';
@@ -121,7 +113,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const [c1, c2, c3] = selectedCards;
         const isMobile = window.innerWidth <= 768;
 
-        // 1. 飛到定位
         setTimeout(() => {
             if (isMobile) {
                 c1.cardDom.style.transform = 'translate(-110%, -130%) scale(0.9) rotate(-5deg)';
@@ -138,14 +129,11 @@ document.addEventListener('DOMContentLoaded', () => {
             c3.cardDom.style.zIndex = '3000';
         }, 500);
 
-        // 2. 依序翻牌
         setTimeout(() => flipCard(c1, "現狀"), 1200);
         setTimeout(() => flipCard(c2, "渴望"), 1600);
         setTimeout(() => flipCard(c3, "指引"), 2200);
 
-        // 3. ★★★ 啟動浮動與連線 (在翻完牌後) ★★★
         setTimeout(() => {
-            // 加入浮動動畫 Class
             if (isMobile) {
                 c1.cardDom.classList.add('floating-m-left');
                 c2.cardDom.classList.add('floating-m-right');
@@ -154,38 +142,25 @@ document.addEventListener('DOMContentLoaded', () => {
                 c2.cardDom.classList.add('floating-right');
             }
             c3.cardDom.classList.add('floating-center');
-
-            // 開始畫線
             connectCards(c1.cardDom, c3.cardDom, document.getElementById('line-left'));
             connectCards(c2.cardDom, c3.cardDom, document.getElementById('line-right'));
-            
         }, 2800);
 
-        // 4. 顯示結果彈窗 (再晚一點，讓使用者欣賞一下連線特效)
         setTimeout(() => {
-            showResultModal(selectedCards[2].data);
+            showResultModal(selectedCards); // 傳入所有卡片
         }, 4500);
     }
 
-    // 繪製連線函式
     function connectCards(fromCard, toCard, lineEl) {
-        // 取得卡片中心點座標
+        if(!lineEl) return;
         const rect1 = fromCard.getBoundingClientRect();
         const rect2 = toCard.getBoundingClientRect();
         const containerRect = container.getBoundingClientRect();
-
-        // 計算相對於 container 的座標
         const x1 = rect1.left + rect1.width / 2 - containerRect.left;
         const y1 = rect1.top + rect1.height / 2 - containerRect.top;
         const x2 = rect2.left + rect2.width / 2 - containerRect.left;
         const y2 = rect2.top + rect2.height / 2 - containerRect.top;
-
-        lineEl.setAttribute('x1', x1);
-        lineEl.setAttribute('y1', y1);
-        lineEl.setAttribute('x2', x2);
-        lineEl.setAttribute('y2', y2);
-        
-        // 淡入線條
+        lineEl.setAttribute('x1', x1); lineEl.setAttribute('y1', y1); lineEl.setAttribute('x2', x2); lineEl.setAttribute('y2', y2);
         lineEl.style.transition = 'opacity 1s ease';
         lineEl.setAttribute('opacity', '1');
     }
@@ -206,49 +181,96 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 300);
     }
 
-    function showResultModal(finalCardData) {
-        resultImg.src = finalCardData.img;
-        cardNameBox.innerText = finalCardData.card;
-        destBox.innerHTML = `<img src="${finalCardData.flag}" class="flag-icon" alt="flag"> ${finalCardData.dest}`;
-        
-        imgContainer.classList.remove('reveal-show');
-        imgContainer.classList.add('reveal-pending');
-        destBox.classList.remove('reveal-show');
-        destBox.classList.add('reveal-pending');
-        ctaBtn.classList.remove('reveal-show');
-        ctaBtn.classList.add('reveal-pending');
-        
-        const card1 = selectedCards[0].data; 
-        const card2 = selectedCards[1].data; 
-        const analysisText = `牌陣顯示，你目前正處於「${card1.keywords}」的狀態，而你的靈魂深處渴望著「${card2.keywords}」。\n\n綜合這兩股能量，宇宙為你指引的出口是……`;
-        const fullText = `${analysisText}\n${finalCardData.dest}。\n\n${finalCardData.advice}\n${finalCardData.text}`;
+    // ★★★ 核心修改：顯示三張牌 ★★★
+    function showResultModal(cards) {
+        const c1 = cards[0].data; // 現狀
+        const c2 = cards[1].data; // 渴望
+        const c3 = cards[2].data; // 結果 (主角)
+
+        // 1. 產生三張牌的 HTML
+        const tarotImgHTML = `
+            <div class="three-card-display reveal-pending">
+                <div class="mini-card-wrapper">
+                    <img src="${c1.img}" class="mini-card-img">
+                    <div class="mini-card-title">現狀</div>
+                    <div class="mini-card-name">${c1.card.split('(')[0]}</div>
+                </div>
+                <div class="mini-card-wrapper">
+                    <img src="${c2.img}" class="mini-card-img">
+                    <div class="mini-card-title">渴望</div>
+                    <div class="mini-card-name">${c2.card.split('(')[0]}</div>
+                </div>
+                <div class="mini-card-wrapper">
+                    <img src="${c3.img}" class="mini-card-img">
+                    <div class="mini-card-title">指引</div>
+                    <div class="mini-card-name">${c3.card.split('(')[0]}</div>
+                </div>
+            </div>
+        `;
+
+        // 2. 替換掉原本的單圖容器
+        // 我們找到 result-box，並重寫它的內容結構，確保順序正確
+        // 清空舊結構，重新組裝
+        const resultBox = document.querySelector('.result-box');
+        resultBox.innerHTML = `
+            <span class="close-btn" id="close-btn-inner">×</span>
+            ${tarotImgHTML}
+            <div class="result-content">
+                <div class="dest-name reveal-pending" id="r-dest">
+                    <img src="${c3.flag}" class="flag-icon"> ${c3.dest}
+                </div>
+                <div class="quote" id="r-quote"></div>
+                <a href="#" class="btn-line reveal-pending" id="cta-btn" target="_blank">現在安排旅程 (洽詢 LINE) ➔</a>
+            </div>
+        `;
+
+        // 重新綁定關閉按鈕事件 (因為被innerHTML洗掉了)
+        document.getElementById('close-btn-inner').onclick = () => {
+            overlay.style.display = 'none';
+            setTimeout(initGame, 300);
+        };
+
+        const quoteBox = document.getElementById('r-quote');
+        const destBox = document.getElementById('r-dest');
+        const ctaBtn = document.querySelector('.btn-line'); // 重新抓取
+        const cardDisplay = document.querySelector('.three-card-display'); // 重新抓取
+
+        // 3. 設定初始隱藏
+        // class 已經寫在 HTML string 裡了 (reveal-pending)
+
+        const analysisText = `牌陣顯示，你目前正處於「${c1.keywords}」的狀態，而你的靈魂深處渴望著「${c2.keywords}」。\n\n綜合這兩股能量，宇宙為你指引的出口是……`;
+        const fullText = `${analysisText}\n${c3.dest}。\n\n${c3.advice}\n${c3.text}`;
         
         quoteBox.innerHTML = ""; 
         quoteBox.classList.add('typing-cursor'); 
         
-        const message = encodeURIComponent(`你好，我在靈魂羅盤抽到了【${finalCardData.dest}】。\n(現狀：${card1.keywords} / 渴望：${card2.keywords})，想詢問行程。`);
+        const message = encodeURIComponent(`你好，我在靈魂羅盤抽到了【${c3.dest}】。\n(現狀：${c1.keywords} / 渴望：${c2.keywords})，想詢問行程。`);
         ctaBtn.href = `${YOUR_LINE_URL}?text=${message}`;
 
         overlay.style.display = 'flex';
 
-        typeWriter(analysisText, 0, () => {
+        // 4. 打字機動畫
+        typeWriter(analysisText, 0, quoteBox, () => {
             quoteBox.classList.remove('typing-cursor'); 
             quoteBox.innerText = fullText; 
+            
+            // 揭曉所有隱藏元素
             setTimeout(() => {
-                imgContainer.classList.add('reveal-show');
+                cardDisplay.classList.add('reveal-show');
                 destBox.classList.add('reveal-show');
                 ctaBtn.classList.add('reveal-show');
             }, 300);
         });
     }
 
-    function typeWriter(text, i, callback) {
+    // 微調打字機，接受 element 參數
+    function typeWriter(text, i, element, callback) {
         if (i < text.length) {
-            quoteBox.innerHTML += text.charAt(i);
+            element.innerHTML += text.charAt(i);
             let speed = 40;
             if (text.charAt(i) === '，' || text.charAt(i) === '。') speed = 300;
             if (text.charAt(i) === '\n') speed = 500;
-            setTimeout(() => { typeWriter(text, i + 1, callback); }, speed);
+            setTimeout(() => { typeWriter(text, i + 1, element, callback); }, speed);
         } else {
             if (callback) callback();
         }
