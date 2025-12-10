@@ -7,6 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const ctaBtn = document.getElementById('cta-btn');
     const resultImg = document.getElementById('r-img');
     const titleText = document.querySelector('p.subtitle');
+    const introBox = document.getElementById('intro'); // 抓取整個標題區塊
     const quoteBox = document.getElementById('r-quote');
     const destBox = document.getElementById('r-dest');
     const cardNameBox = document.getElementById('r-card');
@@ -28,9 +29,26 @@ document.addEventListener('DOMContentLoaded', () => {
         return array;
     }
 
+    // ★★★ 新增：優雅更新標題函式 ★★★
+    function updateTitle(newText) {
+        // 1. 先淡出
+        introBox.style.transition = 'opacity 0.3s ease';
+        introBox.style.opacity = '0';
+        
+        // 2. 等待淡出後換字 (300ms)
+        setTimeout(() => {
+            titleText.innerText = newText;
+            // 3. 再淡入
+            introBox.style.opacity = '1';
+        }, 300);
+    }
+
     function initGame() {
         container.innerHTML = '';
         selectedCards = []; 
+        
+        // 確保標題區是可見的
+        introBox.style.opacity = '1';
         titleText.innerText = "請憑直覺抽取第 1 張牌：【現狀】\n揭示你為何想出發？";
 
         const deck = shuffle([...tarotData]);
@@ -77,17 +95,18 @@ document.addEventListener('DOMContentLoaded', () => {
         card.style.borderColor = 'var(--gold)';
         card.style.boxShadow = '0 0 20px var(--gold)';
 
+        // ★★★ 使用 updateTitle 來更新文字，解決遮擋感 ★★★
         if (pickCount === 1) {
-            titleText.innerText = "請抽取第 2 張牌：【渴望】\n你靈魂深處在尋求什麼？";
+            updateTitle("請抽取第 2 張牌：【渴望】\n你靈魂深處在尋求什麼？");
         } else if (pickCount === 2) {
-            titleText.innerText = "請抽取最後 1 張牌：【指引】\n宇宙給你的最終答案。";
+            updateTitle("請抽取最後 1 張牌：【指引】\n宇宙給你的最終答案。");
         } else if (pickCount === 3) {
-            titleText.innerText = "正在連結宇宙訊號...\n解讀你的聖三角牌陣...";
+            // 最後階段，直接讓標題淡出不顯示，專注在開牌動畫
+            introBox.style.opacity = '0';
             startRevealSequence();
         }
     }
 
-    // ★★★ 核心修改：響應式排列 (金字塔型) ★★★
     function startRevealSequence() {
         const allCards = document.querySelectorAll('.card');
         allCards.forEach(c => c.style.pointerEvents = 'none');
@@ -100,36 +119,26 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         const [c1, c2, c3] = selectedCards;
-        const isMobile = window.innerWidth <= 768; // 偵測是否為手機
+        const isMobile = window.innerWidth <= 768;
 
         // 2. 飛到定位 (500ms)
         setTimeout(() => {
             if (isMobile) {
-                // === 手機版：金字塔排列 ===
-                // c1 (現狀): 左上
-                // c2 (渴望): 右上
-                // c3 (結果): 正下方 (主角)
-                
-                // translate(-110%) 代表往左移超過一個身位
-                // translate(10%) 代表往右移一點點
+                // 手機版：金字塔排列
                 c1.cardDom.style.transform = 'translate(-110%, -130%) scale(0.9) rotate(-5deg)';
-                
                 c2.cardDom.style.transform = 'translate(10%, -130%) scale(0.9) rotate(5deg)';
-                
                 c3.cardDom.style.transform = 'translate(-50%, -10%) scale(1.2) rotate(0deg)';
-                
             } else {
-                // === 電腦版：水平排列 ===
-                c1.cardDom.style.transform = 'translate(-160%, -50%) scale(1.0) rotate(-5deg)';
-                c2.cardDom.style.transform = 'translate(60%, -50%) scale(1.0) rotate(5deg)';
+                // 電腦版：使用 calc() 強制推開
+                c1.cardDom.style.transform = 'translate(calc(-50% - 250px), -50%) scale(1.0) rotate(-5deg)';
+                c2.cardDom.style.transform = 'translate(calc(-50% + 250px), -50%) scale(1.0) rotate(5deg)';
                 c3.cardDom.style.transform = 'translate(-50%, -50%) scale(1.4) rotate(0deg)';
             }
 
-            // 加入 selected class 確保層級正確
             c1.cardDom.classList.add('selected'); 
             c2.cardDom.classList.add('selected');
             c3.cardDom.classList.add('selected');
-            c3.cardDom.style.zIndex = '3000'; // 主角最高
+            c3.cardDom.style.zIndex = '3000';
         }, 500);
 
         // 3. 依序翻牌
@@ -137,7 +146,7 @@ document.addEventListener('DOMContentLoaded', () => {
         setTimeout(() => flipCard(c2, "渴望"), 1600);
         setTimeout(() => flipCard(c3, "指引"), 2200);
 
-        // 4. 顯示結果彈窗 (延遲到大家都翻完)
+        // 4. 顯示結果彈窗
         setTimeout(() => {
             showResultModal(selectedCards[2].data);
         }, 3200);
@@ -147,7 +156,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const dom = cardObj.cardDom;
         const data = cardObj.data;
         
-        // 建立標籤
         const cardNameSimple = data.card.split('(')[0].trim(); 
         const labelDiv = document.createElement('div');
         labelDiv.className = 'card-label';
