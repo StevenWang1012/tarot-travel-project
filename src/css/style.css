@@ -1,0 +1,104 @@
+<style>
+        :root {
+            --primary: #1a1a1a;
+            --accent: #c5a059; /* 塔羅金 */
+            --bg: #f8f9fa;
+        }
+        body {
+            font-family: "PingFang TC", "Microsoft JhengHei", sans-serif;
+            background-color: var(--bg);
+            color: var(--primary);
+            text-align: center;
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        h1 { margin-bottom: 10px; }
+        p.subtitle { color: #666; margin-bottom: 30px; }
+        
+        /* 卡片網格系統 */
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(70px, 1fr));
+            gap: 10px;
+            max-width: 800px;
+            margin: 0 auto;
+            perspective: 1000px;
+        }
+        
+        /* 單張卡片樣式 */
+        .card {
+            background: linear-gradient(135deg, #2c3e50, #000);
+            border: 1px solid var(--accent);
+            border-radius: 6px;
+            aspect-ratio: 2/3; /* 黃金比例 */
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--accent);
+            font-size: 1.2rem;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            position: relative;
+        }
+        .card::after {
+            content: "✦";
+            font-size: 1.5rem;
+            opacity: 0.5;
+        }
+        .card:hover {
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 10px 15px rgba(0,0,0,0.3);
+            z-index: 10;
+            border-color: #fff;
+        }
+
+        /* 結果區域 */
+        #result-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.9);
+            z-index: 100;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            color: #fff;
+            animation: fadeIn 0.5s;
+        }
+        .result-box {
+            background: #fff;
+            color: #333;
+            padding: 40px;
+            border-radius: 12px;
+            max-width: 500px;
+            width: 90%;
+            text-align: center;
+            position: relative;
+            border-top: 5px solid var(--accent);
+        }
+        .tarot-name { color: var(--accent); font-size: 1.2rem; font-weight: bold; letter-spacing: 1px;}
+        .dest-name { font-size: 2.2rem; margin: 15px 0; font-weight: 800; }
+        .quote { font-style: italic; color: #555; line-height: 1.6; margin-bottom: 30px; }
+        
+        .btn {
+            background: var(--primary);
+            color: #fff;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 50px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: 0.3s;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .btn:hover { background: var(--accent); color: #000; }
+        .close-btn {
+            position: absolute; top: 15px; right: 20px;
+            font-size: 24px; cursor: pointer; color: #999;
+        }
+        
+        @keyframes fadeIn { from {opacity:0;} to {opacity:1;} }
+    </style>
