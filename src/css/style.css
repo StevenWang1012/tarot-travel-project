@@ -23,7 +23,7 @@ body {
 }
 
 /* =========================================
-   2. 標題區
+   2. 標題區 (Header)
    ========================================= */
 #intro {
     position: absolute;
@@ -51,7 +51,7 @@ p.subtitle {
 }
 
 /* =========================================
-   3. 按鈕
+   3. 按鈕 (Button)
    ========================================= */
 button {
     position: fixed;
@@ -79,7 +79,7 @@ button:hover {
 }
 
 /* =========================================
-   4. 牌桌容器
+   4. 牌桌容器 (Deck Container)
    ========================================= */
 .grid-container {
     position: absolute;
@@ -97,7 +97,7 @@ button:hover {
 }
 
 /* =========================================
-   5. 卡片設計
+   5. 卡片設計 (Card Styling)
    ========================================= */
 .card {
     position: absolute;
@@ -141,8 +141,7 @@ button:hover {
     filter: brightness(1.2);
 }
 
-/* 動畫狀態 */
-.card.picked { }
+/* --- 卡片狀態 --- */
 
 .card.selected {
     position: fixed;
@@ -178,6 +177,30 @@ button:hover {
     transition: all 0.5s ease-in;
 }
 
+/* ★★★ 新增：卡牌下方的文字標籤 (現狀/渴望/指引) ★★★ */
+.card-label {
+    position: absolute;
+    bottom: -40px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 200px;
+    text-align: center;
+    
+    font-size: 0.8rem;
+    color: #fff;
+    text-shadow: 0 0 5px #000, 0 0 10px var(--accent);
+    font-weight: bold;
+    letter-spacing: 1px;
+    
+    opacity: 0;
+    transition: opacity 0.5s ease 0.3s;
+    pointer-events: none;
+}
+
+.card.revealed .card-label {
+    opacity: 1;
+}
+
 /* =========================================
    6. 結果彈窗 (Result Modal)
    ========================================= */
@@ -185,7 +208,7 @@ button:hover {
     display: none;
     position: fixed;
     top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(5, 5, 10, 0.9); /* 背景更加深，專注文字 */
+    background: rgba(5, 5, 10, 0.9);
     backdrop-filter: blur(10px);
     z-index: 9999;
     align-items: center;
@@ -203,10 +226,8 @@ button:hover {
     max-width: 800px;
     width: 100%;
     max-height: 90vh;
-    
     border: 1px solid var(--accent);
     box-shadow: 0 0 40px rgba(100, 50, 200, 0.4);
-    
     display: flex;
     flex-direction: row;
     align-items: center;
@@ -272,31 +293,26 @@ button:hover {
 }
 
 .quote { 
-    font-size: 1rem; /* 字稍微放大一點方便閱讀 */
+    font-size: 1rem; 
     color: #ddd; 
     line-height: 1.6; 
     margin-bottom: 20px; 
     border-left: 3px solid var(--gold); 
     padding-left: 15px;
-    min-height: 100px; /* 預留高度給打字效果 */
-    white-space: pre-wrap; /* 保留換行 */
+    min-height: 100px;
+    white-space: pre-wrap;
 }
 
-/* ★★★ 新增：揭曉動畫樣式 ★★★ */
-/* 初始隱藏狀態 */
+/* 揭曉動畫樣式 */
 .reveal-pending {
     opacity: 0;
     transform: translateY(20px);
     transition: opacity 1s ease, transform 1s ease;
 }
-
-/* 顯示狀態 */
 .reveal-show {
     opacity: 1;
     transform: translateY(0);
 }
-
-/* 打字游標特效 (選用) */
 .typing-cursor::after {
     content: '|';
     animation: blink 0.8s infinite;
@@ -323,13 +339,21 @@ button:hover {
 
 @keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
 
-/* RWD */
+/* =========================================
+   7. 手機版 RWD
+   ========================================= */
 @media (max-width: 768px) {
     #intro { top: 10%; }
     h1 { font-size: 1.8rem; letter-spacing: 5px; }
     
     .grid-container { top: 70%; height: 400px; }
     .card { width: 90px; height: 140px; margin-left: -45px; }
+
+    /* 手機版字體調整 */
+    .card-label {
+        font-size: 0.7rem;
+        bottom: -35px;
+    }
 
     .result-box { 
         flex-direction: column; 
