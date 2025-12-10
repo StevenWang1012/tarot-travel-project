@@ -3,178 +3,193 @@
    ========================================= */
 :root {
     --primary: #fff;
-    --accent: #c8a6ff;
-    --gold: #d4af37;
-    --bg: #0f0f1a;
-    --line-green: #06C755;
+    --accent: #dfa6ff; /* 更亮的淡紫色 */
+    --gold: #ffd700;   /* 更亮的純金色 */
+    --glow: rgba(255, 215, 0, 0.6); /* 金色光暈 */
+    --bg: #0b0b15;     /*以此為底 */
 }
 
 body {
     font-family: "PingFang TC", "Microsoft JhengHei", sans-serif;
     background-color: var(--bg);
-    background-image: radial-gradient(circle at center, #1a1a2e 0%, #000000 100%);
+    /* 背景加入一點神祕的紫色光暈中心 */
+    background-image: radial-gradient(circle at 50% 40%, #2a1a3e 0%, #000000 80%);
     color: var(--primary);
     text-align: center;
     margin: 0;
     padding: 0;
-    min-height: 100vh;
-    overflow: hidden; /* 防止扇形太寬出現卷軸 */
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+    height: 100vh; /* 強制滿版 */
+    overflow: hidden; 
+    position: relative;
 }
 
 /* =========================================
-   2. 標題與按鈕 (Header)
+   2. 標題區 (Header) - 上移並縮小一點
    ========================================= */
 #intro {
-    position: relative;
-    z-index: 10;
-    margin-top: 40px;
+    position: absolute; /* 改為絕對定位 */
+    top: 10%; /* 固定在上方 10% 的位置 */
     width: 100%;
+    z-index: 10;
+    pointer-events: none; /* 讓點擊可以穿透文字選到牌(如果牌飛太高的話) */
 }
 
 h1 {
-    font-size: 2.5rem;
+    font-size: 2.2rem;
     font-weight: 300;
-    letter-spacing: 5px;
+    letter-spacing: 8px;
     color: var(--accent);
-    text-shadow: 0 0 15px rgba(200, 166, 255, 0.4);
-    margin-bottom: 10px;
+    text-shadow: 0 0 20px rgba(200, 166, 255, 0.6);
+    margin-bottom: 5px;
 }
 
 p.subtitle {
-    color: #888;
+    color: #aaa;
+    font-size: 0.9rem;
     margin-bottom: 20px;
+    letter-spacing: 1px;
 }
 
+/* 按鈕需要開啟 pointer-events */
 button {
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    color: #aaa;
-    padding: 8px 25px;
+    pointer-events: auto; 
+    background: rgba(0, 0, 0, 0.5);
+    border: 1px solid var(--accent);
+    color: var(--accent);
+    padding: 8px 30px;
     border-radius: 30px;
     cursor: pointer;
     transition: 0.3s;
+    font-size: 0.8rem;
+    box-shadow: 0 0 10px rgba(200, 166, 255, 0.2);
 }
 button:hover {
-    border-color: var(--accent);
-    color: var(--accent);
-    background: rgba(200, 166, 255, 0.1);
+    background: var(--accent);
+    color: #000;
+    box-shadow: 0 0 20px var(--accent);
 }
 
 /* =========================================
-   3. 牌桌容器 (Deck Container) - 關鍵修改
+   3. 牌桌容器 (Deck Container) - 視覺中心化
    ========================================= */
-/* 這裡不再是用 Grid，而是作為一個「舞台」讓牌飛舞 */
 .grid-container {
-    position: relative;
+    position: absolute;
+    /* 【關鍵修改】讓容器中心點位於螢幕正中央偏下 */
+    /* 這樣扇形展開時，牌的頂端會剛好在螢幕正中央 */
+    top: 60%; 
+    left: 50%;
+    transform: translate(-50%, -50%);
+    
     width: 100%;
-    height: 500px; /* 給牌足夠的活動空間 */
-    margin-top: 20px;
+    height: 400px;
     display: flex;
     justify-content: center;
-    /* 讓牌的旋轉中心點位於畫面下方 */
+    align-items: flex-end; /* 對齊底部 */
     perspective: 1000px;
+    z-index: 5;
 }
 
 /* =========================================
-   4. 卡片設計 (Card Styling) - 扇形核心
+   4. 卡片設計 (Card Styling) - 華麗亮色版
    ========================================= */
 .card {
-    /* 改為絕對定位，讓它們可以疊在一起 */
     position: absolute;
-    width: 120px; 
-    height: 180px; 
+    width: 130px;  /* 稍微加大 */
+    height: 200px; 
     
-    /* 牌背設計 */
-    background-color: #1a1a1a;
-    background-image: repeating-linear-gradient(
-        45deg, 
-        rgba(212, 175, 55, 0.08) 0, 
-        rgba(212, 175, 55, 0.08) 1px, 
-        transparent 0, 
-        transparent 10px
-    );
-    border: 1px solid #444;
-    border-radius: 8px;
-    box-shadow: -2px 2px 10px rgba(0,0,0,0.5);
+    /* 【關鍵修改】華麗的牌背設計 */
+    /* 使用深紫色漸層 + 金色紋理 */
+    background: linear-gradient(135deg, #4a1c40 0%, #250935 100%);
     
-    /* 設定旋轉中心點在卡片底部，這樣才會呈現扇形 */
-    transform-origin: bottom center;
+    /* 金色邊框與發光 */
+    border: 2px solid var(--gold);
+    box-shadow: 0 0 15px rgba(0,0,0,0.8), inset 0 0 20px rgba(255, 215, 0, 0.1);
     
-    /* 初始狀態：全部疊在畫面中間下方 */
+    border-radius: 12px;
+    transform-origin: bottom center; /* 旋轉軸心在底部 */
+    
+    /* 初始位置 */
     left: 50%;
     bottom: 0;
-    margin-left: -60px; /* 修正居中 (寬度的一半) */
+    margin-left: -65px; /* 寬度的一半，確保居中 */
     
-    transition: all 0.6s cubic-bezier(0.25, 1, 0.5, 1);
+    transition: all 0.5s cubic-bezier(0.25, 0.8, 0.25, 1);
     cursor: pointer;
+    
+    /* 增加金屬質感紋路 */
+    background-image: 
+        linear-gradient(135deg, rgba(255,215,0,0.1) 25%, transparent 25%, transparent 50%, rgba(255,215,0,0.1) 50%, rgba(255,215,0,0.1) 75%, transparent 75%, transparent),
+        linear-gradient(135deg, #4a1c40 0%, #180529 100%);
+    background-size: 10px 10px, 100% 100%;
 }
 
+/* 牌背中間的符號 - 加亮 */
 .card::after {
     content: "✦";
-    font-size: 1.5rem;
+    font-size: 2.5rem; /* 加大 */
     color: var(--gold);
-    opacity: 0.4;
+    text-shadow: 0 0 10px var(--gold); /* 發光文字 */
     position: absolute;
     top: 50%; left: 50%;
     transform: translate(-50%, -50%);
+    opacity: 0.8;
 }
 
 /* --- 互動效果 --- */
 
-/* 滑鼠滑過時：該張牌往上浮起 */
+/* 滑鼠滑過：更強烈的發光與上浮 */
 .card:hover {
-    z-index: 100 !important; /* 保證浮在最上面 */
-    box-shadow: 0 0 20px var(--accent);
-    border-color: var(--accent);
-    /* 這裡的 transform 會由 JS 動態計算後覆蓋，所以主要靠 JS 控制 */
+    z-index: 100 !important;
+    box-shadow: 0 0 30px var(--gold), 0 0 60px var(--accent); /* 雙重光暈 */
+    border-color: #fff; /* 邊框變白亮 */
+    filter: brightness(1.2); /* 整張牌變亮 */
 }
 
-/* 被選中的牌 (飛到中間) */
+/* 被選中的牌：飛到正中央 */
 .card.selected {
-    transform: translate(0, -150px) rotate(0deg) scale(1.5) !important;
+    /* 計算移動到螢幕正中央 */
+    /* 由於 container 在 60% 的位置，我們需要往上移 */
+    transform: translate(0, -150px) rotate(0deg) scale(1.6) !important; 
     z-index: 200 !important;
-    box-shadow: 0 0 50px var(--gold);
-    border-color: var(--gold);
+    box-shadow: 0 0 50px var(--gold), 0 0 100px var(--accent);
+    border: 3px solid #fff;
 }
 
-/* 沒被選中的牌 (淡出消失) */
+/* 沒被選中的牌：往下掉落淡出 */
 .card.fade-out {
     opacity: 0;
     pointer-events: none;
-    transform: translateY(200px) !important;
+    transform: translateY(300px) rotate(0deg) !important;
+    transition: all 0.6s ease-in;
 }
 
 /* =========================================
-   5. 結果彈窗 (Result Modal) - 保持不變
+   5. 結果彈窗 (Result Modal) - 保持原本設計
    ========================================= */
-/* (這部分為了節省篇幅，與上一次給您的完全一樣，不用改) */
 #result-overlay {
     display: none;
     position: fixed;
     top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(10, 10, 20, 0.6);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
+    background: rgba(5, 5, 10, 0.7);
+    backdrop-filter: blur(15px); /* 模糊度加強 */
+    -webkit-backdrop-filter: blur(15px);
     z-index: 999;
     align-items: center;
     justify-content: center;
-    animation: fadeIn 0.4s ease-out;
+    animation: fadeIn 0.5s ease-out;
     padding: 20px;
     box-sizing: border-box;
 }
 
 .result-box {
-    background: rgba(20, 20, 30, 0.95);
+    background: rgba(20, 10, 30, 0.9); /* 帶一點紫色的黑 */
     color: #fff;
     padding: 40px;
     border-radius: 16px;
     max-width: 850px;
     width: 100%;
-    border: 1px solid rgba(200, 166, 255, 0.2);
-    box-shadow: 0 25px 50px rgba(0,0,0,0.6);
+    border: 1px solid var(--accent); /* 邊框換成紫色 */
+    box-shadow: 0 0 50px rgba(100, 50, 200, 0.5); /* 紫色氛圍光 */
     position: relative;
     display: flex;
     flex-direction: row;
@@ -186,7 +201,7 @@ button:hover {
 .tarot-img-container { flex: 1; display: flex; justify-content: center; }
 .tarot-img-container img {
     width: 100%; max-width: 280px; height: auto;
-    border-radius: 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    border-radius: 10px; box-shadow: 0 10px 40px rgba(0,0,0,0.8);
     border: 3px solid var(--gold);
 }
 
@@ -197,28 +212,29 @@ button:hover {
     background: linear-gradient(45deg, #fff 30%, var(--gold) 100%);
     -webkit-background-clip: text; -webkit-text-fill-color: transparent;
 }
-.quote { font-size: 1rem; color: #ccc; line-height: 1.7; margin-bottom: 30px; border-left: 3px solid var(--accent); padding-left: 15px; }
+.quote { font-size: 1rem; color: #ddd; line-height: 1.7; margin-bottom: 30px; border-left: 3px solid var(--gold); padding-left: 15px; }
 
 .btn-line {
     background-color: var(--line-green); color: #fff; padding: 14px 35px;
     border-radius: 8px; font-weight: bold; text-decoration: none;
     display: inline-flex; width: fit-content; transition: 0.3s;
+    box-shadow: 0 5px 15px rgba(6, 199, 85, 0.3);
 }
-.btn-line:hover { background-color: #05b34c; transform: translateY(-2px); }
+.btn-line:hover { background-color: #05b34c; transform: translateY(-2px); box-shadow: 0 10px 25px rgba(6, 199, 85, 0.5); }
 
-.close-btn { position: absolute; top: 20px; right: 20px; font-size: 28px; color: #666; cursor: pointer; }
-.close-btn:hover { color: #fff; }
+.close-btn { position: absolute; top: 20px; right: 20px; font-size: 28px; color: #888; cursor: pointer; transition: 0.3s; }
+.close-btn:hover { color: #fff; transform: rotate(90deg); }
 
 @keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
 
-/* RWD 手機版 */
+/* RWD 手機版調整 */
 @media (max-width: 768px) {
-    .result-box { flex-direction: column; text-align: center; max-height: 85vh; overflow-y: auto; }
-    .result-content { align-items: center; }
-    .quote { border-left: none; border-top: 2px solid var(--accent); padding-top: 15px; padding-left: 0; }
-    .btn-line { width: 100%; }
+    #intro { top: 5%; } /* 手機版標題再高一點 */
+    .grid-container { top: 55%; height: 350px; }
+    .card { width: 100px; height: 160px; margin-left: -50px; }
     
-    /* 手機版扇形稍微收窄一點 */
-    .grid-container { height: 400px; }
-    .card { width: 90px; height: 140px; margin-left: -45px; }
+    .result-box { flex-direction: column; text-align: center; max-height: 85vh; overflow-y: auto; padding: 25px; }
+    .result-content { align-items: center; }
+    .quote { border-left: none; border-top: 2px solid var(--gold); padding-top: 15px; padding-left: 0; }
+    .btn-line { width: 100%; }
 }
