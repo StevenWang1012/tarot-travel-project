@@ -1,0 +1,25 @@
+// 匯出數據供 main.js 使用
+export const tarotData = [
+    { id: 0, card: "0. 愚者 (The Fool)", dest: "🇮🇸 冰島", text: "你需要一場不顧一切的流浪，在世界的盡頭與極光相遇，歸零重啟。" },
+    { id: 1, card: "I. 魔術師 (The Magician)", dest: "🇸🇬 新加坡", text: "此刻的你充滿創造力。去一個融合未來與綠意的城市，激發更多靈感。" },
+    { id: 2, card: "II. 女祭司 (The High Priestess)", dest: "🇪🇬 埃及", text: "你渴望深入未知的神秘。尼羅河畔的古老智慧，正等待著你的解讀。" },
+    { id: 3, card: "III. 皇后 (The Empress)", dest: "🇫🇷 法國・巴黎", text: "你需要極致的感官享受。美食、藝術、時尚，請好好寵愛你自己。" },
+    { id: 4, card: "IV. 皇帝 (The Emperor)", dest: "🇩🇪 德國・柏林", text: "生活需要秩序與力量。在歷史與現代交錯的城市，找回你的掌控權。" },
+    { id: 5, card: "V. 教皇 (The Hierophant)", dest: "🇮🇳 印度・瓦拉納西", text: "這是一趟精神之旅。在恆河邊的晨禱中，尋求傳統與心靈的指引。" },
+    { id: 6, card: "VI. 戀人 (The Lovers)", dest: "🇬🇷 希臘・聖托里尼", text: "面對選擇時，聽從你的心。在藍白相間的島嶼，找回愛的初衷。" },
+    { id: 7, card: "VII. 戰車 (The Chariot)", dest: "🇦🇪 杜拜", text: "你的野心需要釋放。去沙漠中的奇蹟之城，感受意志力如何征服世界。" },
+    { id: 8, card: "VIII. 力量 (Strength)", dest: "🇰🇪 肯亞", text: "真正的力量來自內心。在草原看動物大遷徙，喚醒你原始的勇氣。" },
+    { id: 9, card: "IX. 隱士 (The Hermit)", dest: "🇯🇵 日本・京都", text: "世界太吵了。你需要古寺的鐘聲與枯山水，來一場與靈魂的獨處。" },
+    { id: 10, card: "X. 命運之輪 (Wheel of Fortune)", dest: "🇹🇷 土耳其", text: "改變的時刻到了。搭上熱氣球升空，視角變了，運氣也會跟著轉動。" },
+    { id: 11, card: "XI. 正義 (Justice)", dest: "🇨🇭 瑞士", text: "你需要絕對的客觀與平靜。在阿爾卑斯山的純淨中，找回生活的平衡。" },
+    { id: 12, card: "XII. 倒吊人 (The Hanged Man)", dest: "🇳🇵 尼泊爾", text: "換個角度看世界吧。在喜馬拉雅山腳下，學會放下與犧牲的智慧。" },
+    { id: 13, card: "XIII. 死神 (Death)", dest: "🇲🇽 墨西哥", text: "結束是為了重生。在亡靈節的斑斕色彩中，慶祝生命的轉化與延續。" },
+    { id: 14, card: "XIV. 節制 (Temperance)", dest: "🇨🇦 加拿大・班夫", text: "尋找冰與火的調和。在洛磯山脈的湖光山色中，療癒疲憊的身心。" },
+    { id: 15, card: "XV. 惡魔 (The Devil)", dest: "🇹🇭 泰國・芭達雅", text: "釋放你的慾望吧！偶爾的放縱不是罪，去享受一場感官的狂歡派對。" },
+    { id: 16, card: "XVI. 高塔 (The Tower)", dest: "🇺🇸 美國・大峽谷", text: "打破現有的框架！你需要大自然的鬼斧神工，來震撼並重組你的價值觀。" },
+    { id: 17, card: "XVII. 星星 (The Star)", dest: "🇳🇿 紐西蘭", text: "希望能指引方向。在蒂卡波湖的星空下，許下願望，感受純粹的療癒。" },
+    { id: 18, card: "XVIII. 月亮 (The Moon)", dest: "󠁧󠁢󠁳󠁣󠁴󠁿 英國・蘇格蘭高地", text: "直覺比邏輯重要。在迷霧與古堡的傳說中，探索你潛意識的夢境。" },
+    { id: 19, card: "XIX. 太陽 (The Sun)", dest: "🇮🇹 義大利・西西里島", text: "擁抱純粹的快樂！陽光、檸檬、地中海，讓你像孩子一樣開懷大笑。" },
+    { id: 20, card: "XX. 審判 (Judgement)", dest: "🇵🇪 秘魯・馬丘比丘", text: "這是一聲靈魂的召喚。走上印加古道，完成你人生清單中最重要的拼圖。" },
+    { id: 21, card: "XXI. 世界 (The World)", dest: "🚢 環球遊輪", text: "旅程的終點是圓滿。不用再選擇，去擁抱整個世界，享受達陣的成就感。" }
+];
