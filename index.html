@@ -10,10 +10,8 @@
 
     <div id="intro">
         <h1>靈魂羅盤</h1>
-        <p class="subtitle">你的靈魂，正在召喚哪個遠方？<br>憑直覺點選一張牌，接收宇宙的指引。</p>
-        
-        <button onclick="location.reload()" style="background:transparent; border:1px solid #555; color:#888; padding:8px 20px; border-radius:20px; cursor:pointer; margin-bottom:30px; font-size:0.8rem; transition:0.3s;">↻ 重新洗牌</button>
-
+        <p class="subtitle">你的靈魂，正在召喚哪個遠方？</p>
+        <button onclick="location.reload()" style="background:transparent; border:1px solid #555; color:#888; padding:8px 20px; border-radius:20px; cursor:pointer; margin-bottom:30px;">↻ 重新洗牌</button>
         <div class="grid-container" id="card-grid"></div>
     </div>
 
@@ -22,14 +20,15 @@
             <span class="close-btn" id="close-btn">×</span>
             
             <div class="tarot-img-container">
-                <img id="r-img" src="" alt="Tarot Card" />
+                <img id="r-img" src="" alt="Tarot Card">
             </div>
 
-            <div class="tarot-name" id="r-card"></div>
-            <div class="dest-name" id="r-dest"></div>
-            <div class="quote" id="r-quote"></div>
-            <a href="#" class="btn" id="cta-btn">開啟靈魂旅程</a>
-            <div class="footer-note">截圖分享你的命定牌卡</div>
+            <div class="result-content">
+                <div class="tarot-name" id="r-card"></div> <div class="dest-name" id="r-dest"></div>  <div class="quote" id="r-quote"></div>     <a href="#" class="btn-line" id="cta-btn" target="_blank">
+                    現在安排旅程 (洽詢 LINE) ➔
+                </a>
+            </div>
+
         </div>
     </div>
 
