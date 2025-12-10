@@ -1,49 +1,53 @@
 /* =========================================
-   1. 全局設定與背景 (Global & Background)
+   1. 全局設定 (Global)
    ========================================= */
 :root {
-    --primary: #fff;       /* 主要文字白 */
-    --accent: #c8a6ff;     /* 靈魂紫 (副標、小字) */
-    --gold: #d4af37;       /* 塔羅金 (邊框、強調) */
-    --bg: #0f0f1a;         /* 深邃星空底色 */
-    --line-green: #06C755; /* LINE 官方綠色 */
+    --primary: #fff;
+    --accent: #c8a6ff;
+    --gold: #d4af37;
+    --bg: #0f0f1a;
+    --line-green: #06C755;
 }
 
 body {
-    font-family: "PingFang TC", "Microsoft JhengHei", "Helvetica Neue", sans-serif;
+    font-family: "PingFang TC", "Microsoft JhengHei", sans-serif;
     background-color: var(--bg);
-    /* 簡單的徑向漸層，模擬深邃宇宙 */
     background-image: radial-gradient(circle at center, #1a1a2e 0%, #000000 100%);
     color: var(--primary);
     text-align: center;
     margin: 0;
-    padding: 20px;
+    padding: 0;
     min-height: 100vh;
-    overflow-x: hidden; /* 防止手機版橫向捲動 */
+    overflow: hidden; /* 防止扇形太寬出現卷軸 */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 /* =========================================
-   2. 標題與按鈕區 (Header & Controls)
+   2. 標題與按鈕 (Header)
    ========================================= */
+#intro {
+    position: relative;
+    z-index: 10;
+    margin-top: 40px;
+    width: 100%;
+}
+
 h1 {
     font-size: 2.5rem;
     font-weight: 300;
     letter-spacing: 5px;
     color: var(--accent);
-    margin-top: 20px;
-    margin-bottom: 10px;
     text-shadow: 0 0 15px rgba(200, 166, 255, 0.4);
+    margin-bottom: 10px;
 }
 
 p.subtitle {
     color: #888;
-    font-size: 1rem;
-    font-weight: 300;
-    margin-bottom: 30px;
-    line-height: 1.6;
+    margin-bottom: 20px;
 }
 
-/* 洗牌按鈕樣式 */
 button {
     background: rgba(255, 255, 255, 0.05);
     border: 1px solid rgba(255, 255, 255, 0.2);
@@ -51,11 +55,8 @@ button {
     padding: 8px 25px;
     border-radius: 30px;
     cursor: pointer;
-    margin-bottom: 40px;
-    font-size: 0.9rem;
-    transition: all 0.3s ease;
+    transition: 0.3s;
 }
-
 button:hover {
     border-color: var(--accent);
     color: var(--accent);
@@ -63,29 +64,30 @@ button:hover {
 }
 
 /* =========================================
-   3. 卡片網格系統 (Card Grid)
+   3. 牌桌容器 (Deck Container) - 關鍵修改
    ========================================= */
+/* 這裡不再是用 Grid，而是作為一個「舞台」讓牌飛舞 */
 .grid-container {
-    display: grid;
-    /* RWD設定：最小寬度80px，自動填滿 */
-    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
-    gap: 15px;
-    max-width: 900px;
-    margin: 0 auto;
-    perspective: 1000px; /* 3D 透視感 */
+    position: relative;
+    width: 100%;
+    height: 500px; /* 給牌足夠的活動空間 */
+    margin-top: 20px;
+    display: flex;
+    justify-content: center;
+    /* 讓牌的旋轉中心點位於畫面下方 */
+    perspective: 1000px;
 }
 
 /* =========================================
-   4. 卡片設計 (Card Styling)
+   4. 卡片設計 (Card Styling) - 扇形核心
    ========================================= */
 .card {
-    aspect-ratio: 2/3; /* 黃金比例 */
-    border-radius: 8px;
-    cursor: pointer;
-    position: relative;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+    /* 改為絕對定位，讓它們可以疊在一起 */
+    position: absolute;
+    width: 120px; 
+    height: 180px; 
     
-    /* --- 牌背花紋設計 (CSS畫的) --- */
+    /* 牌背設計 */
     background-color: #1a1a1a;
     background-image: repeating-linear-gradient(
         45deg, 
@@ -94,15 +96,22 @@ button:hover {
         transparent 0, 
         transparent 10px
     );
-    border: 1px solid #333;
+    border: 1px solid #444;
+    border-radius: 8px;
+    box-shadow: -2px 2px 10px rgba(0,0,0,0.5);
     
-    /* 初始狀態：用於入場動畫 */
-    opacity: 0;
-    transform: translateY(30px);
-    transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s;
+    /* 設定旋轉中心點在卡片底部，這樣才會呈現扇形 */
+    transform-origin: bottom center;
+    
+    /* 初始狀態：全部疊在畫面中間下方 */
+    left: 50%;
+    bottom: 0;
+    margin-left: -60px; /* 修正居中 (寬度的一半) */
+    
+    transition: all 0.6s cubic-bezier(0.25, 1, 0.5, 1);
+    cursor: pointer;
 }
 
-/* 牌背中間的神祕符號 */
 .card::after {
     content: "✦";
     font-size: 1.5rem;
@@ -113,220 +122,103 @@ button:hover {
     transform: translate(-50%, -50%);
 }
 
-/* 發牌動畫 class (由 JS 添加) */
-.card.dealt {
-    animation: dealCard 0.6s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+/* --- 互動效果 --- */
+
+/* 滑鼠滑過時：該張牌往上浮起 */
+.card:hover {
+    z-index: 100 !important; /* 保證浮在最上面 */
+    box-shadow: 0 0 20px var(--accent);
+    border-color: var(--accent);
+    /* 這裡的 transform 會由 JS 動態計算後覆蓋，所以主要靠 JS 控制 */
 }
 
-/* 滑鼠懸停效果 */
-.card:hover {
-    transform: translateY(-10px) scale(1.05);
-    box-shadow: 0 0 20px rgba(200, 166, 255, 0.3);
-    border-color: var(--accent);
-    z-index: 10;
+/* 被選中的牌 (飛到中間) */
+.card.selected {
+    transform: translate(0, -150px) rotate(0deg) scale(1.5) !important;
+    z-index: 200 !important;
+    box-shadow: 0 0 50px var(--gold);
+    border-color: var(--gold);
+}
+
+/* 沒被選中的牌 (淡出消失) */
+.card.fade-out {
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(200px) !important;
 }
 
 /* =========================================
-   5. 結果彈窗 (Result Modal) - 關鍵修改區
+   5. 結果彈窗 (Result Modal) - 保持不變
    ========================================= */
+/* (這部分為了節省篇幅，與上一次給您的完全一樣，不用改) */
 #result-overlay {
-    display: none; /* 預設隱藏 */
+    display: none;
     position: fixed;
     top: 0; left: 0; width: 100%; height: 100%;
-    
-    /* 背景半透明黑 */
     background: rgba(10, 10, 20, 0.6);
-    
-    /* 【關鍵】毛玻璃模糊特效 */
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
-    
-    z-index: 100;
+    z-index: 999;
     align-items: center;
     justify-content: center;
     animation: fadeIn 0.4s ease-out;
-    padding: 20px; /* 避免手機版貼邊 */
+    padding: 20px;
     box-sizing: border-box;
 }
 
 .result-box {
-    /* 彈窗本體背景 */
     background: rgba(20, 20, 30, 0.95);
     color: #fff;
     padding: 40px;
     border-radius: 16px;
     max-width: 850px;
     width: 100%;
-    
     border: 1px solid rgba(200, 166, 255, 0.2);
     box-shadow: 0 25px 50px rgba(0,0,0,0.6);
     position: relative;
-
-    /* 【關鍵】啟用 Flexbox 實現左圖右文 */
     display: flex;
     flex-direction: row;
     align-items: center;
-    gap: 40px; /* 圖片與文字的間距 */
-    text-align: left; /* 文字預設靠左 */
+    gap: 40px;
+    text-align: left;
 }
 
-/* --- 左側：圖片區 --- */
-.tarot-img-container {
-    flex: 1; /* 佔據 1 份空間 */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
+.tarot-img-container { flex: 1; display: flex; justify-content: center; }
 .tarot-img-container img {
-    width: 100%;
-    max-width: 280px; /* 限制圖片最大寬度 */
-    height: auto;
-    border-radius: 10px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-    border: 3px solid var(--gold); /* 金色邊框 */
-    transform: rotate(-2deg); /* 微微傾斜增加質感 */
-    transition: transform 0.5s;
+    width: 100%; max-width: 280px; height: auto;
+    border-radius: 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    border: 3px solid var(--gold);
 }
 
-.tarot-img-container img:hover {
-    transform: rotate(0deg) scale(1.02);
-}
-
-/* --- 右側：文字內容區 --- */
-.result-content {
-    flex: 1.5; /* 佔據 1.5 份空間 (比圖片寬) */
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-}
-
-.tarot-name {
-    color: var(--accent);
-    font-size: 0.9rem;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    margin-bottom: 8px;
-    font-weight: 600;
-}
-
-.dest-name {
-    font-size: 2.5rem;
-    font-weight: 800;
-    margin: 0 0 20px 0;
-    line-height: 1.2;
-    
-    /* 金色漸層文字特效 */
+.result-content { flex: 1.5; display: flex; flex-direction: column; }
+.tarot-name { color: var(--accent); font-size: 0.9rem; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 8px; }
+.dest-name { 
+    font-size: 2.5rem; font-weight: 800; margin: 0 0 20px 0; 
     background: linear-gradient(45deg, #fff 30%, var(--gold) 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
 }
+.quote { font-size: 1rem; color: #ccc; line-height: 1.7; margin-bottom: 30px; border-left: 3px solid var(--accent); padding-left: 15px; }
 
-.quote {
-    font-size: 1rem;
-    color: #ccc;
-    line-height: 1.7;
-    margin-bottom: 30px;
-    border-left: 3px solid var(--accent); /* 左側裝飾線 */
-    padding-left: 15px;
-}
-
-/* --- LINE 按鈕設計 --- */
 .btn-line {
-    background-color: var(--line-green);
-    color: #fff;
-    border: none;
-    padding: 14px 35px;
-    border-radius: 8px;
-    font-size: 1rem;
-    font-weight: bold;
-    cursor: pointer;
-    text-decoration: none; /* 去除超連結底線 */
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 15px rgba(6, 199, 85, 0.25);
-    width: fit-content; /* 寬度隨內容 */
+    background-color: var(--line-green); color: #fff; padding: 14px 35px;
+    border-radius: 8px; font-weight: bold; text-decoration: none;
+    display: inline-flex; width: fit-content; transition: 0.3s;
 }
+.btn-line:hover { background-color: #05b34c; transform: translateY(-2px); }
 
-.btn-line:hover {
-    background-color: #05b34c;
-    transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(6, 199, 85, 0.4);
-}
+.close-btn { position: absolute; top: 20px; right: 20px; font-size: 28px; color: #666; cursor: pointer; }
+.close-btn:hover { color: #fff; }
 
-/* 關閉按鈕 (X) */
-.close-btn {
-    position: absolute;
-    top: 20px;
-    right: 20px;
-    font-size: 28px;
-    color: #666;
-    cursor: pointer;
-    z-index: 10;
-    line-height: 1;
-    transition: color 0.3s;
-}
+@keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
 
-.close-btn:hover {
-    color: #fff;
-}
-
-/* =========================================
-   6. 動畫定義 (Animations)
-   ========================================= */
-@keyframes dealCard {
-    from { 
-        opacity: 0; 
-        transform: translateY(30px) scale(0.9); 
-    }
-    to { 
-        opacity: 1; 
-        transform: translateY(0) scale(1); 
-    }
-}
-
-@keyframes fadeIn {
-    from { opacity: 0; transform: scale(0.95); }
-    to { opacity: 1; transform: scale(1); }
-}
-
-/* =========================================
-   7. 手機版 RWD (Mobile Responsiveness)
-   ========================================= */
+/* RWD 手機版 */
 @media (max-width: 768px) {
-    /* 在手機上，把 Flexbox 改為直向排列 */
-    .result-box {
-        flex-direction: column; 
-        text-align: center; /* 文字置中 */
-        padding: 30px 20px;
-        gap: 25px;
-        max-height: 85vh; /* 防止彈窗太長超出螢幕 */
-        overflow-y: auto; /* 內容太多時可捲動 */
-    }
-
-    .result-content {
-        align-items: center; /* 讓按鈕和文字置中 */
-    }
+    .result-box { flex-direction: column; text-align: center; max-height: 85vh; overflow-y: auto; }
+    .result-content { align-items: center; }
+    .quote { border-left: none; border-top: 2px solid var(--accent); padding-top: 15px; padding-left: 0; }
+    .btn-line { width: 100%; }
     
-    .quote {
-        text-align: center; /* 引言置中 */
-        border-left: none; /* 移除左側線 */
-        border-top: 2px solid var(--accent); /* 改為上方線 */
-        padding-top: 15px;
-        padding-left: 0;
-    }
-
-    .dest-name {
-        font-size: 2rem; /* 標題稍微縮小 */
-    }
-
-    .tarot-img-container img {
-        max-width: 180px; /* 手機圖片縮小 */
-    }
-
-    .btn-line {
-        width: 100%; /* 按鈕滿版 */
-    }
+    /* 手機版扇形稍微收窄一點 */
+    .grid-container { height: 400px; }
+    .card { width: 90px; height: 140px; margin-left: -45px; }
 }
