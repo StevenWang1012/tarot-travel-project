@@ -17,33 +17,33 @@ body {
     margin: 0;
     padding: 0;
     height: 100vh;
-    overflow: hidden;
+    overflow: hidden; /* 禁止整個頁面捲動 */
     position: relative;
 }
 
 /* =========================================
-   2. 標題區 (Header)
+   2. 標題區
    ========================================= */
 #intro {
     position: absolute;
-    top: 15%; /* 標題稍微下移一點點，讓上方留白 */
+    top: 15%;
     width: 100%;
     z-index: 5;
     pointer-events: none;
 }
 
 h1 {
-    font-size: 2.5rem;
+    font-size: 2.2rem;
     font-weight: 300;
     letter-spacing: 10px;
     color: var(--accent);
     text-shadow: 0 0 20px rgba(200, 166, 255, 0.6);
-    margin: 0 0 10px 0;
+    margin: 0 0 5px 0;
 }
 
 p.subtitle {
-    color: #ffffff;
-    font-size: 1rem;
+    color: #888;
+    font-size: 0.9rem;
     letter-spacing: 2px;
 }
 
@@ -52,36 +52,33 @@ p.subtitle {
    ========================================= */
 button {
     position: fixed;
-    bottom: 30px;
-    right: 30px;
+    bottom: 20px;
+    right: 20px;
     z-index: 5000;
     background: rgba(20, 10, 30, 0.6);
     border: 1px solid var(--accent);
     color: var(--accent);
-    padding: 10px 25px;
+    padding: 8px 20px;
     border-radius: 50px;
     cursor: pointer;
     transition: 0.3s;
-    font-size: 0.9rem;
+    font-size: 0.8rem;
     backdrop-filter: blur(5px);
-    box-shadow: 0 0 15px rgba(0,0,0,0.5);
     pointer-events: auto;
 }
 
 button:hover {
     background: var(--accent);
     color: #000;
-    transform: scale(1.05);
     box-shadow: 0 0 20px var(--accent);
 }
 
 /* =========================================
-   4. 牌桌容器 - 位置下移
+   4. 牌桌容器
    ========================================= */
 .grid-container {
     position: absolute;
-    /* 【關鍵修改】下移至 75%，讓扇形底部沉下去，上方留出大空間 */
-    top: 75%; 
+    top: 75%;
     left: 50%;
     transform: translate(-50%, -50%);
     width: 100%;
@@ -89,23 +86,20 @@ button:hover {
     display: flex;
     justify-content: center;
     align-items: flex-end;
-    perspective: 1000px; /* 3D 空間感 */
+    perspective: 1000px;
     z-index: 50;
     pointer-events: none;
 }
 
 /* =========================================
-   5. 卡片設計 - 核心動畫
+   5. 卡片設計
    ========================================= */
 .card {
     position: absolute;
     width: 130px;
     height: 200px;
-    
-    /* 預設牌背樣式 */
     background: linear-gradient(135deg, #4a1c40 0%, #250935 100%);
     border: 2px solid var(--gold);
-    box-shadow: 0 0 15px rgba(0,0,0,0.8), inset 0 0 20px rgba(255, 215, 0, 0.1);
     border-radius: 12px;
     transform-origin: bottom center;
     
@@ -113,20 +107,19 @@ button:hover {
     bottom: 0;
     margin-left: -65px;
     
-    /* 這裡的 transition 控制移動和旋轉的平滑度 */
     transition: all 0.6s cubic-bezier(0.25, 0.8, 0.25, 1);
     cursor: pointer;
     pointer-events: auto;
     z-index: 100;
     
-    /* 牌背紋理 */
+    /* 紋理 */
     background-image: 
         linear-gradient(135deg, rgba(255,215,0,0.1) 25%, transparent 25%, transparent 50%, rgba(255,215,0,0.1) 50%, rgba(255,215,0,0.1) 75%, transparent 75%, transparent),
         linear-gradient(135deg, #4a1c40 0%, #180529 100%);
     background-size: 10px 10px, 100% 100%;
+    box-shadow: 0 0 15px rgba(0,0,0,0.8);
 }
 
-/* 牌背中間的星星符號 */
 .card::after {
     content: "✦";
     font-size: 2.5rem;
@@ -136,134 +129,225 @@ button:hover {
     top: 50%; left: 50%;
     transform: translate(-50%, -50%);
     opacity: 0.8;
-    transition: opacity 0.3s;
 }
 
-/* Hover 上移效果 */
+/* Hover 微動 */
 .card:hover {
     z-index: 1000 !important;
-    box-shadow: 0 0 30px var(--gold), 0 0 60px var(--accent);
     border-color: #fff;
     filter: brightness(1.2);
-    /* Transform 會由 JS 計算角度後動態覆蓋，這裡不寫 transform */
 }
 
-/* --- 動畫狀態 Class --- */
+/* --- 動畫狀態 --- */
 
-/* 1. 被選中：飛到正中央 */
+/* 1. 抽出階段 (Pre-Select)：輕輕上移 */
+.card.pre-select {
+    z-index: 1500 !important;
+    border-color: var(--gold);
+    box-shadow: 0 0 30px var(--gold);
+    /* 保持角度，只往上移一點點 */
+    /* JS 會寫入具體的 transform，這裡主要控制陰影和層級 */
+}
+
+/* 2. 被選中 (Selected)：飛到螢幕正中央 */
 .card.selected {
-    /* 往上飛更多 (-250px)，並放大 */
-    transform: translate(0, -250px) rotate(0deg) scale(1.8) !important;
+    /* 使用固定定位技巧來置中 */
+    /* 這會覆蓋掉 grid-container 的相對位置，確保絕對居中 */
+    position: fixed;
+    top: 50% !important;
+    left: 50% !important;
+    bottom: auto !important;
+    margin: 0 !important;
+    
+    /* 修正中心點 */
+    transform: translate(-50%, -50%) scale(1.5) rotate(0deg) !important;
+    
     z-index: 2000 !important;
     box-shadow: 0 0 50px var(--gold);
     border: 3px solid #fff;
     cursor: default;
+    transition: all 0.8s cubic-bezier(0.2, 1, 0.3, 1); /* 飛慢一點比較優雅 */
 }
 
-/* 2. 翻轉中：轉到側面 (90度) */
+/* 3. 翻轉中 */
 .card.flipping {
-    transform: translate(0, -250px) rotateY(90deg) scale(1.8) !important;
-    border-color: var(--gold); /* 翻轉時邊框變金 */
+    transform: translate(-50%, -50%) scale(1.5) rotateY(90deg) !important;
 }
 
-/* 3. 已揭曉：正面朝上 (0度) + 顯示圖片 */
+/* 4. 已揭曉 */
 .card.revealed {
-    transform: translate(0, -250px) rotateY(0deg) scale(1.8) !important;
-    background-color: #000; /* 底色改黑 */
+    transform: translate(-50%, -50%) scale(1.5) rotateY(0deg) !important;
+    background-color: #000;
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
-    /* 移除牌背紋理與陰影，讓圖片清晰 */
-    box-shadow: 0 0 60px rgba(255, 215, 0, 0.4); 
-    border: 2px solid var(--gold);
+    box-shadow: 0 0 60px rgba(255, 215, 0, 0.3); 
 }
+.card.revealed::after { opacity: 0; }
 
-/* 揭曉後，隱藏牌背的星星符號 */
-.card.revealed::after {
-    opacity: 0;
-}
-
-/* 沒選中：淡出 */
+/* 淡出 */
 .card.fade-out {
     opacity: 0;
     pointer-events: none;
-    transform: translateY(300px) rotate(0deg) !important;
-    transition: all 0.6s ease-in;
+    transform: translateY(200px) !important;
+    transition: all 0.5s ease-in;
 }
 
 /* =========================================
-   6. 結果彈窗 (保持不變)
+   6. 結果彈窗 (Compact Version)
    ========================================= */
 #result-overlay {
     display: none;
     position: fixed;
     top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(5, 5, 10, 0.7);
-    backdrop-filter: blur(15px);
-    -webkit-backdrop-filter: blur(15px);
+    background: rgba(5, 5, 10, 0.8); /* 背景暗一點 */
+    backdrop-filter: blur(10px);
     z-index: 9999;
     align-items: center;
     justify-content: center;
     animation: fadeIn 0.5s ease-out;
-    padding: 20px;
+    padding: 15px; /* 縮小邊距 */
     box-sizing: border-box;
 }
 
 .result-box {
-    background: rgba(20, 10, 30, 0.9);
+    background: rgba(20, 10, 35, 0.95);
     color: #fff;
-    padding: 40px;
+    padding: 25px; /* 內距縮小 */
     border-radius: 16px;
-    max-width: 850px;
+    max-width: 800px;
     width: 100%;
+    max-height: 90vh; /* 確保不超過螢幕高度 */
+    
     border: 1px solid var(--accent);
-    box-shadow: 0 0 50px rgba(100, 50, 200, 0.5);
-    position: relative;
+    box-shadow: 0 0 40px rgba(100, 50, 200, 0.4);
+    
     display: flex;
     flex-direction: row;
     align-items: center;
-    gap: 40px;
+    gap: 30px;
     text-align: left;
+    overflow: hidden; /* 防止內部捲動 */
 }
 
-.tarot-img-container { flex: 1; display: flex; justify-content: center; }
+.tarot-img-container { 
+    flex: 1; 
+    display: flex; 
+    justify-content: center; 
+    align-items: center;
+}
+
 .tarot-img-container img {
-    width: 100%; max-width: 280px; height: auto;
-    border-radius: 10px; box-shadow: 0 10px 40px rgba(0,0,0,0.8);
-    border: 3px solid var(--gold);
+    width: 100%; 
+    max-width: 240px; /* 圖片縮小一點 */
+    height: auto;
+    max-height: 50vh; /* 限制圖片高度，避免手機版撐開 */
+    object-fit: contain;
+    border-radius: 8px; 
+    box-shadow: 0 5px 30px rgba(0,0,0,0.6);
+    border: 2px solid var(--gold);
 }
 
-.result-content { flex: 1.5; display: flex; flex-direction: column; }
-.tarot-name { color: var(--accent); font-size: 0.9rem; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 8px; }
-.dest-name { 
-    font-size: 2.5rem; font-weight: 800; margin: 0 0 20px 0; 
-    background: linear-gradient(45deg, #fff 30%, var(--gold) 100%);
-    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+.result-content { 
+    flex: 1.5; 
+    display: flex; 
+    flex-direction: column; 
+    justify-content: center; 
 }
-.quote { font-size: 1rem; color: #ddd; line-height: 1.7; margin-bottom: 30px; border-left: 3px solid var(--gold); padding-left: 15px; }
+
+.tarot-name { 
+    color: var(--accent); 
+    font-size: 0.85rem; 
+    letter-spacing: 2px; 
+    text-transform: uppercase; 
+    margin-bottom: 5px; 
+}
+
+.dest-name { 
+    font-size: 2rem; /* 字體稍微縮小 */
+    font-weight: 800; 
+    margin: 0 0 15px 0; 
+    background: linear-gradient(45deg, #fff 30%, var(--gold) 100%);
+    -webkit-background-clip: text; 
+    -webkit-text-fill-color: transparent;
+    line-height: 1.2;
+}
+
+.quote { 
+    font-size: 0.95rem; 
+    color: #ddd; 
+    line-height: 1.6; 
+    margin-bottom: 20px; 
+    border-left: 3px solid var(--gold); 
+    padding-left: 15px;
+    /* 限制文字行數 (選用) */
+    display: -webkit-box;
+    -webkit-line-clamp: 4;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
 
 .btn-line {
-    background-color: var(--line-green); color: #fff; padding: 14px 35px;
-    border-radius: 8px; font-weight: bold; text-decoration: none;
-    display: inline-flex; width: fit-content; transition: 0.3s;
+    background-color: var(--line-green); 
+    color: #fff; 
+    padding: 12px 30px;
+    border-radius: 8px; 
+    font-weight: bold; 
+    text-decoration: none;
+    display: inline-flex; 
+    width: fit-content; 
+    transition: 0.3s;
+    font-size: 0.9rem;
     box-shadow: 0 5px 15px rgba(6, 199, 85, 0.3);
 }
-.btn-line:hover { background-color: #05b34c; transform: translateY(-2px); box-shadow: 0 10px 25px rgba(6, 199, 85, 0.5); }
+.btn-line:hover { background-color: #05b34c; transform: translateY(-2px); }
 
-.close-btn { position: absolute; top: 20px; right: 20px; font-size: 28px; color: #888; cursor: pointer; transition: 0.3s; }
-.close-btn:hover { color: #fff; transform: rotate(90deg); }
+.close-btn { position: absolute; top: 15px; right: 20px; font-size: 24px; color: #888; cursor: pointer; }
+.close-btn:hover { color: #fff; }
 
 @keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
 
-/* RWD */
+/* === 手機版極致收納 (無捲動設計) === */
 @media (max-width: 768px) {
     #intro { top: 10%; }
-    .grid-container { top: 65%; height: 400px; } /* 手機版不用那麼低 */
-    .card { width: 100px; height: 160px; margin-left: -50px; }
-    button { bottom: 20px; right: 20px; }
+    h1 { font-size: 1.8rem; }
     
-    .result-box { flex-direction: column; text-align: center; max-height: 85vh; overflow-y: auto; padding: 25px; }
-    .result-content { align-items: center; }
-    .quote { border-left: none; border-top: 2px solid var(--gold); padding-top: 15px; padding-left: 0; }
-    .btn-line { width: 100%; }
+    .grid-container { top: 70%; height: 400px; }
+    .card { width: 90px; height: 140px; margin-left: -45px; }
+
+    .result-box { 
+        flex-direction: column; 
+        text-align: center; 
+        padding: 20px; 
+        gap: 15px;
+        max-width: 90%;
+    }
+    
+    /* 讓圖片跟內容並排 (橫式佈局) 或者極致壓縮 */
+    /* 這裡採用縮小圖片策略，確保一眼看完全部 */
+    .tarot-img-container { flex: 0 0 auto; }
+    .tarot-img-container img { 
+        max-width: 140px; /* 手機版圖片改小 */
+        max-height: 180px; 
+    }
+
+    .result-content { 
+        align-items: center; 
+        width: 100%;
+    }
+
+    .dest-name { font-size: 1.6rem; margin-bottom: 10px; }
+    .quote { 
+        font-size: 0.85rem; 
+        border-left: none; 
+        border-top: 2px solid var(--gold); 
+        padding-top: 10px; 
+        padding-left: 0; 
+        margin-bottom: 15px;
+        -webkit-line-clamp: 3; /* 手機版最多顯示 3 行文字 */
+    }
+
+    .btn-line { width: 100%; justify-content: center; padding: 10px 0; }
+    
+    .close-btn { top: 10px; right: 15px; font-size: 28px; }
 }
