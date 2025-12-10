@@ -7,6 +7,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const ctaBtn = document.getElementById('cta-btn');
     const resultImg = document.getElementById('r-img');
     const titleText = document.querySelector('p.subtitle');
+    const quoteBox = document.getElementById('r-quote');
+    const destBox = document.getElementById('r-dest');
+    const cardNameBox = document.getElementById('r-card');
+    const imgContainer = document.querySelector('.tarot-img-container'); // 抓取圖片容器
 
     // ★★★ 請記得更換成您的真實 LINE 連結 ★★★
     const YOUR_LINE_URL = "https://line.me/ti/p/@example"; 
@@ -15,7 +19,6 @@ document.addEventListener('DOMContentLoaded', () => {
     let selectedCards = []; 
     const MAX_SELECTION = 3;
 
-    // 洗牌
     function shuffle(array) {
         let currentIndex = array.length, randomIndex;
         while (currentIndex != 0) {
@@ -26,7 +29,6 @@ document.addEventListener('DOMContentLoaded', () => {
         return array;
     }
 
-    // 初始化
     function initGame() {
         container.innerHTML = '';
         selectedCards = []; 
@@ -63,7 +65,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // 點擊處理
     function handleCardClick(card, data, originalAngle) {
         if (selectedCards.length >= MAX_SELECTION || card.classList.contains('picked')) return;
 
@@ -71,7 +72,6 @@ document.addEventListener('DOMContentLoaded', () => {
         selectedCards.push({ cardDom: card, data: data, angle: originalAngle });
 
         const pickCount = selectedCards.length;
-
         card.style.transform = `rotate(${originalAngle}deg) translateY(-60px) scale(1.1)`;
         card.style.borderColor = 'var(--gold)';
         card.style.boxShadow = '0 0 20px var(--gold)';
@@ -86,73 +86,119 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // 動畫序列
     function startRevealSequence() {
         const allCards = document.querySelectorAll('.card');
         allCards.forEach(c => c.style.pointerEvents = 'none');
 
-        // 其他牌淡出
         allCards.forEach(card => {
             if (!card.classList.contains('picked')) {
                 card.classList.add('fade-out');
             }
         });
 
-        // 飛到中間
+        const [c1, c2, c3] = selectedCards;
+
         setTimeout(() => {
-            const [c1, c2, c3] = selectedCards;
-            
-            c1.cardDom.style.transform = 'translate(-160%, -50%) scale(1.0) rotate(-10deg)';
+            c1.cardDom.style.transform = 'translate(-160%, -50%) scale(1.0) rotate(-5deg)';
             c1.cardDom.classList.add('selected'); 
 
-            c2.cardDom.style.transform = 'translate(60%, -50%) scale(1.0) rotate(10deg)';
+            c2.cardDom.style.transform = 'translate(60%, -50%) scale(1.0) rotate(5deg)';
             c2.cardDom.classList.add('selected');
 
             c3.cardDom.style.transform = 'translate(-50%, -50%) scale(1.4) rotate(0deg)';
             c3.cardDom.classList.add('selected');
-            c3.cardDom.style.zIndex = '3000'; 
+            c3.cardDom.style.zIndex = '3000';
         }, 500);
 
-        // 翻開主角牌
-        setTimeout(() => {
-            const finalCard = selectedCards[2]; 
-            finalCard.cardDom.classList.add('flipping');
-        }, 1200);
+        setTimeout(() => flipCard(c1), 1200);
+        setTimeout(() => flipCard(c2), 1600);
+        setTimeout(() => flipCard(c3), 2200);
 
-        // 換圖並轉正
-        setTimeout(() => {
-            const finalCard = selectedCards[2];
-            finalCard.cardDom.style.backgroundImage = `url('${finalCard.data.img}')`;
-            finalCard.cardDom.classList.remove('flipping');
-            finalCard.cardDom.classList.add('revealed');
-        }, 1500);
-
-        // 顯示結果
         setTimeout(() => {
             showResultModal(selectedCards[2].data);
-        }, 2200);
+        }, 3200);
     }
 
-    // 顯示結果彈窗 (加入國旗圖片)
+    function flipCard(cardObj) {
+        const dom = cardObj.cardDom;
+        const data = cardObj.data;
+        dom.classList.add('flipping');
+        setTimeout(() => {
+            dom.style.backgroundImage = `url('${data.img}')`;
+            dom.classList.remove('flipping');
+            dom.classList.add('revealed');
+        }, 300);
+    }
+
+    // ★★★ 核心：打字機與揭曉動畫 ★★★
     function showResultModal(finalCardData) {
+        // 1. 準備內容
         resultImg.src = finalCardData.img;
-        document.getElementById('r-card').innerText = finalCardData.card;
+        cardNameBox.innerText = finalCardData.card;
+        destBox.innerHTML = `<img src="${finalCardData.flag}" class="flag-icon" alt="flag"> ${finalCardData.dest}`;
         
-        // ★★★ 這裡修改了：插入國旗圖片 ★★★
-        const destElement = document.getElementById('r-dest');
-        destElement.innerHTML = `<img src="${finalCardData.flag}" class="flag-icon" alt="flag"> ${finalCardData.dest}`;
+        // 2. 設定初始隱藏狀態 (圖片、標題、國家、按鈕 先藏起來)
+        imgContainer.classList.remove('reveal-show');
+        imgContainer.classList.add('reveal-pending');
         
+        destBox.classList.remove('reveal-show');
+        destBox.classList.add('reveal-pending');
+        
+        ctaBtn.classList.remove('reveal-show');
+        ctaBtn.classList.add('reveal-pending');
+        
+        // 3. 準備打字內容 (只包含分析部分，最後一句留給建議)
         const card1 = selectedCards[0].data; 
         const card2 = selectedCards[1].data; 
         
-        const logicText = `牌陣顯示，你目前正處於「${card1.keywords}」的狀態，\n而你的靈魂深處渴望著「${card2.keywords}」。\n\n綜合這兩股能量，宇宙為你指引的出口是——\n${finalCardData.dest}。\n\n${finalCardData.advice}\n${finalCardData.text}`;
+        // 打字機要打的文字 (分析鋪墊)
+        const analysisText = `牌陣顯示，你目前正處於「${card1.keywords}」的狀態，而你的靈魂深處渴望著「${card2.keywords}」。\n\n綜合這兩股能量，宇宙為你指引的出口是……`;
         
-        document.getElementById('r-quote').innerText = logicText;
+        // 最終顯示的完整文字 (打字完後會補上最後的建議)
+        const fullText = `${analysisText}\n${finalCardData.dest}。\n\n${finalCardData.advice}\n${finalCardData.text}`;
         
+        quoteBox.innerHTML = ""; // 清空
+        quoteBox.classList.add('typing-cursor'); // 加游標
+        
+        // 設定 LINE 連結
         const message = encodeURIComponent(`你好，我在靈魂羅盤抽到了【${finalCardData.dest}】。\n(現狀：${card1.keywords} / 渴望：${card2.keywords})，想詢問行程。`);
         ctaBtn.href = `${YOUR_LINE_URL}?text=${message}`;
 
         overlay.style.display = 'flex';
+
+        // 4. 開始打字 (速度：30ms/字)
+        typeWriter(analysisText, 0, () => {
+            // 打字完成後的回呼函式 (Callback)
+            quoteBox.classList.remove('typing-cursor'); // 移除游標
+            
+            // 補上最後的建議文字 (也可以選擇繼續打字，這裡直接顯示比較乾脆)
+            quoteBox.innerText = fullText; 
+
+            // 5. 揭曉時刻！(顯示圖片、標題、按鈕)
+            setTimeout(() => {
+                imgContainer.classList.add('reveal-show');
+                destBox.classList.add('reveal-show');
+                ctaBtn.classList.add('reveal-show');
+            }, 300);
+        });
+    }
+
+    // 打字機遞迴函式
+    function typeWriter(text, i, callback) {
+        if (i < text.length) {
+            quoteBox.innerHTML += text.charAt(i);
+            // 遇到標點符號停頓久一點，增加真實感
+            let speed = 40;
+            if (text.charAt(i) === '，' || text.charAt(i) === '。') speed = 300;
+            if (text.charAt(i) === '\n') speed = 500;
+            
+            setTimeout(() => {
+                typeWriter(text, i + 1, callback);
+            }, speed);
+        } else {
+            // 打完了，執行下一步
+            if (callback) callback();
+        }
     }
 
     closeBtn.onclick = () => { 
