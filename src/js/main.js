@@ -7,10 +7,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const ctaBtn = document.getElementById('cta-btn');
     const resultImg = document.getElementById('r-img');
     
-    // LINE 連結
     const YOUR_LINE_URL = "https://line.me/ti/p/@example"; 
 
-    // Fisher-Yates 洗牌
     function shuffle(array) {
         let currentIndex = array.length, randomIndex;
         while (currentIndex != 0) {
@@ -21,14 +19,12 @@ document.addEventListener('DOMContentLoaded', () => {
         return array;
     }
 
-    // 初始化遊戲
     function initGame() {
         container.innerHTML = '';
         const deck = shuffle([...tarotData]);
         
-        // 扇形參數
         const totalCards = deck.length;
-        const arcAngle = 100; // 總角度
+        const arcAngle = 100;
         const angleStep = arcAngle / (totalCards - 1);
         const startAngle = -arcAngle / 2;
 
@@ -36,72 +32,77 @@ document.addEventListener('DOMContentLoaded', () => {
             let card = document.createElement('div');
             card.className = 'card';
             
-            // 計算角度
             const rotateAngle = startAngle + (index * angleStep);
+            // 將角度存入 dataset 以便後續讀取
+            card.dataset.angle = rotateAngle;
             
-            // 點擊事件
-            card.onclick = () => pickCard(card, item);
+            card.onclick = () => pickCard(card, item, rotateAngle);
             
-            // Hover 效果 (只在未選中時生效)
             card.onmouseenter = () => {
-                if(!card.classList.contains('selected') && !card.classList.contains('fade-out')) {
-                    // 保持原本的旋轉角度，但往上移 (-30px) 並稍微放大
+                if(!card.classList.contains('selected') && !card.classList.contains('pre-select') && !card.classList.contains('fade-out')) {
                     card.style.transform = `rotate(${rotateAngle}deg) translateY(-30px) scale(1.1)`;
                 }
             };
             card.onmouseleave = () => {
-                if(!card.classList.contains('selected') && !card.classList.contains('fade-out')) {
-                    // 恢復原狀
+                if(!card.classList.contains('selected') && !card.classList.contains('pre-select') && !card.classList.contains('fade-out')) {
                     card.style.transform = `rotate(${rotateAngle}deg) translateY(0) scale(1)`;
                 }
             };
 
             container.appendChild(card);
 
-            // 入場動畫
             setTimeout(() => {
                 card.style.transform = `rotate(${rotateAngle}deg) translateY(0) scale(1)`;
             }, 100 + (index * 30));
         });
     }
 
-    // 核心：選牌與翻牌動畫
-    function pickCard(selectedCard, data) {
-        // 1. 鎖定：其他的牌淡出
+    function pickCard(selectedCard, data, originalAngle) {
+        // 1. 鎖定所有卡片，防止重複點擊
         const allCards = document.querySelectorAll('.card');
-        allCards.forEach(card => {
-            if (card !== selectedCard) {
-                card.classList.add('fade-out');
-            }
-        });
+        allCards.forEach(c => c.style.pointerEvents = 'none');
 
-        // 2. 階段一：飛到中間 (0ms)
-        // 移除 inline style (旋轉角度)，讓 class 生效
-        selectedCard.style.transform = ''; 
-        selectedCard.classList.add('selected');
+        // === 動畫第一步：輕輕抽出 ===
+        // 保持原角度，往上移更多 (-70px)
+        selectedCard.classList.add('pre-select');
+        selectedCard.style.transform = `rotate(${originalAngle}deg) translateY(-80px) scale(1.1)`;
 
-        // 3. 階段二：開始翻轉 (600ms後，等飛行結束)
+        // === 動畫第二步：其他牌淡出 (延遲 300ms) ===
         setTimeout(() => {
-            selectedCard.classList.add('flipping'); // 轉到 90度 (側面)
-        }, 600);
+            allCards.forEach(card => {
+                if (card !== selectedCard) {
+                    card.classList.add('fade-out');
+                }
+            });
+        }, 300);
 
-        // 4. 階段三：換圖並轉正 (900ms後，轉到一半時換圖)
+        // === 動畫第三步：飛到正中央 (延遲 800ms) ===
         setTimeout(() => {
-            // 設定真實塔羅牌圖片
+            // 移除 pre-select 和 inline transform
+            selectedCard.classList.remove('pre-select');
+            selectedCard.style.transform = ''; 
+            // 加入 selected (CSS 會控制它用 fixed position 飛到正中央)
+            selectedCard.classList.add('selected');
+        }, 800);
+
+        // === 動畫第四步：翻轉 (延遲 1600ms, 等飛行結束) ===
+        setTimeout(() => {
+            selectedCard.classList.add('flipping');
+        }, 1600);
+
+        // === 動畫第五步：換圖並轉正 (延遲 1900ms) ===
+        setTimeout(() => {
             selectedCard.style.backgroundImage = `url('${data.img}')`;
-            
-            // 移除翻轉狀態，加入揭曉狀態 (轉回 0度)
             selectedCard.classList.remove('flipping');
             selectedCard.classList.add('revealed');
-        }, 900);
+        }, 1900);
 
-        // 5. 階段四：顯示詳細彈窗 (1500ms後)
+        // === 動畫第六步：顯示彈窗 (延遲 2600ms) ===
         setTimeout(() => {
             showResultModal(data);
-        }, 1500);
+        }, 2600);
     }
 
-    // 顯示彈窗
     function showResultModal(data) {
         resultImg.src = data.img;
         document.getElementById('r-card').innerText = data.card;
@@ -114,7 +115,6 @@ document.addEventListener('DOMContentLoaded', () => {
         overlay.style.display = 'flex';
     }
 
-    // 關閉與重置
     closeBtn.onclick = () => { 
         overlay.style.display = 'none'; 
         setTimeout(initGame, 300);
@@ -127,6 +127,5 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    // 啟動
     initGame();
 });
