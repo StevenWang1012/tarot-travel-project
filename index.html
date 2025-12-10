@@ -5,14 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>靈魂羅盤：2025 你的命定旅程</title>
     <meta property="og:title" content="靈魂羅盤：你的靈魂正在召喚哪個遠方？" />
-    <meta property="og:description" content="透過聖三角牌陣，揭示潛意識渴望的旅行地圖。點擊立即占卜。" />
     <meta property="og:image" content="https://upload.wikimedia.org/wikipedia/commons/9/90/RWS_Tarot_00_Fool.jpg" />
-    <meta property="og:type" content="website" />
     <link rel="stylesheet" href="src/css/style.css">
 </head>
 <body>
 
-    <header id="main-header">
+    <header id="top-header">
         <h1>靈魂羅盤</h1>
     </header>
 
@@ -31,16 +29,17 @@
         </svg>
     </div>
 
-    <div id="prompt-area">
+    <div id="bottom-prompt">
         <p class="subtitle">你的靈魂，正在召喚哪個遠方？</p>
     </div>
 
-    <button onclick="location.reload()">↻ 重新洗牌</button>
+    <button id="shuffle-btn" onclick="location.reload()">↻ 重新洗牌</button>
 
     <div id="result-overlay">
         <div class="result-box">
             <span class="close-btn" id="close-btn">×</span>
-            <div id="dynamic-content-area"></div> 
+            
+            <div id="three-cards-area"></div> 
             
             <div class="result-content">
                 <div class="dest-name reveal-pending" id="r-dest"></div>
