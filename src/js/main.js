@@ -5,9 +5,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const overlay = document.getElementById('result-overlay');
     const closeBtn = document.getElementById('close-btn');
     const ctaBtn = document.getElementById('cta-btn');
-    // const titleText = document.querySelector('p.subtitle'); // 舊的
-    const promptBox = document.getElementById('prompt-area'); // 整個區塊
-    const titleText = promptBox.querySelector('.subtitle');   // 裡面的文字
+    
+    // 對應新的 HTML 結構
+    const promptBox = document.getElementById('bottom-prompt');
+    const titleText = promptBox.querySelector('.subtitle');
     
     const quoteBox = document.getElementById('r-quote');
     const destBox = document.getElementById('r-dest');
@@ -99,7 +100,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (pickCount === 1) updateTitle("請抽取第 2 張牌：【渴望】\n你靈魂深處在尋求什麼？");
         else if (pickCount === 2) updateTitle("請抽取最後 1 張牌：【指引】\n宇宙給你的最終答案。");
         else if (pickCount === 3) {
-            promptBox.style.opacity = '0'; // 隱藏下方文字
+            promptBox.style.opacity = '0';
             startRevealSequence();
         }
     }
@@ -180,13 +181,13 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 300);
     }
 
-    // ★★★ 生成三張牌的結果 ★★★
+    // ★★★ 核心修改：生成三張小卡片 ★★★
     function showResultModal(cards) {
         const c1 = cards[0].data; 
         const c2 = cards[1].data; 
         const c3 = cards[2].data; 
 
-        // 1. 生成三張牌 HTML
+        // 動態生成三張小圖的 HTML
         const tarotImgHTML = `
             <div class="three-card-display reveal-pending">
                 <div class="mini-card-wrapper">
@@ -207,10 +208,10 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>
         `;
 
-        const dynamicArea = document.getElementById('dynamic-content-area');
-        dynamicArea.innerHTML = tarotImgHTML;
+        // 插入到指定的空容器
+        document.getElementById('three-cards-area').innerHTML = tarotImgHTML;
 
-        // 2. 設定文字
+        // 設定文字
         destBox.innerHTML = `<img src="${c3.flag}" class="flag-icon"> ${c3.dest}`;
         
         // 初始隱藏
@@ -228,7 +229,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         overlay.style.display = 'flex';
 
-        // 3. 打字與揭曉
+        // 打字動畫
         typeWriter(analysisText, 0, quoteBox, () => {
             quoteBox.classList.remove('typing-cursor'); 
             quoteBox.innerText = fullText; 
@@ -253,7 +254,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // 重新綁定關閉
     const realCloseBtn = document.getElementById('close-btn');
     if(realCloseBtn) {
         realCloseBtn.onclick = () => {
