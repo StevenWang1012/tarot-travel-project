@@ -1,7 +1,6 @@
 import { tarotData } from './data.js';
 
 document.addEventListener('DOMContentLoaded', () => {
-    // ... (前面的變數與 initGame 都不變，保留原樣) ...
     const container = document.getElementById('card-grid');
     const overlay = document.getElementById('result-overlay');
     const closeBtn = document.getElementById('close-btn');
@@ -12,12 +11,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const destBox = document.getElementById('r-dest');
     const cardNameBox = document.getElementById('r-card');
     const imgContainer = document.querySelector('.tarot-img-container');
+
+    // ★★★ 請更換成真實 LINE 連結 ★★★
     const YOUR_LINE_URL = "https://line.me/ti/p/@example"; 
+
     let selectedCards = []; 
     const MAX_SELECTION = 3;
-
-    // ... (shuffle, initGame, handleCardClick 都不變，請保留) ...
-    // 若您需要完整代碼請告訴我，為了節省篇幅我只列出修改的函數
 
     function shuffle(array) {
         let currentIndex = array.length, randomIndex;
@@ -33,44 +32,67 @@ document.addEventListener('DOMContentLoaded', () => {
         container.innerHTML = '';
         selectedCards = []; 
         titleText.innerText = "請憑直覺抽取第 1 張牌：【現狀】\n揭示你為何想出發？";
+
         const deck = shuffle([...tarotData]);
         const totalCards = deck.length;
         const arcAngle = 100;
         const angleStep = arcAngle / (totalCards - 1);
         const startAngle = -arcAngle / 2;
+
         deck.forEach((item, index) => {
             let card = document.createElement('div');
             card.className = 'card';
             const rotateAngle = startAngle + (index * angleStep);
+            
             card.onclick = () => handleCardClick(card, item, rotateAngle);
-            card.onmouseenter = () => { if(!card.classList.contains('picked') && !card.classList.contains('fade-out')) card.style.transform = `rotate(${rotateAngle}deg) translateY(-20px) scale(1.1)`; };
-            card.onmouseleave = () => { if(!card.classList.contains('picked') && !card.classList.contains('fade-out')) card.style.transform = `rotate(${rotateAngle}deg) translateY(0) scale(1)`; };
+            
+            card.onmouseenter = () => {
+                if(!card.classList.contains('picked') && !card.classList.contains('fade-out')) {
+                    card.style.transform = `rotate(${rotateAngle}deg) translateY(-20px) scale(1.1)`;
+                }
+            };
+            card.onmouseleave = () => {
+                if(!card.classList.contains('picked') && !card.classList.contains('fade-out')) {
+                    card.style.transform = `rotate(${rotateAngle}deg) translateY(0) scale(1)`;
+                }
+            };
+
             container.appendChild(card);
-            setTimeout(() => { card.style.transform = `rotate(${rotateAngle}deg) translateY(0) scale(1)`; }, 100 + (index * 30));
+            setTimeout(() => {
+                card.style.transform = `rotate(${rotateAngle}deg) translateY(0) scale(1)`;
+            }, 100 + (index * 30));
         });
     }
 
     function handleCardClick(card, data, originalAngle) {
         if (selectedCards.length >= MAX_SELECTION || card.classList.contains('picked')) return;
+
         card.classList.add('picked');
         selectedCards.push({ cardDom: card, data: data, angle: originalAngle });
+
         const pickCount = selectedCards.length;
+
+        // 選中時的視覺回饋
         card.style.transform = `rotate(${originalAngle}deg) translateY(-60px) scale(1.1)`;
         card.style.borderColor = 'var(--gold)';
         card.style.boxShadow = '0 0 20px var(--gold)';
-        if (pickCount === 1) titleText.innerText = "請抽取第 2 張牌：【渴望】\n你靈魂深處在尋求什麼？";
-        else if (pickCount === 2) titleText.innerText = "請抽取最後 1 張牌：【指引】\n宇宙給你的最終答案。";
-        else if (pickCount === 3) {
+
+        if (pickCount === 1) {
+            titleText.innerText = "請抽取第 2 張牌：【渴望】\n你靈魂深處在尋求什麼？";
+        } else if (pickCount === 2) {
+            titleText.innerText = "請抽取最後 1 張牌：【指引】\n宇宙給你的最終答案。";
+        } else if (pickCount === 3) {
             titleText.innerText = "正在連結宇宙訊號...\n解讀你的聖三角牌陣...";
             startRevealSequence();
         }
     }
 
-    // ★★★ 修改重點 1：傳入「位置名稱」 ★★★
+    // ★★★ 核心修改：響應式排列 (金字塔型) ★★★
     function startRevealSequence() {
         const allCards = document.querySelectorAll('.card');
         allCards.forEach(c => c.style.pointerEvents = 'none');
 
+        // 1. 其他牌淡出
         allCards.forEach(card => {
             if (!card.classList.contains('picked')) {
                 card.classList.add('fade-out');
@@ -78,47 +100,58 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         const [c1, c2, c3] = selectedCards;
+        const isMobile = window.innerWidth <= 768; // 偵測是否為手機
 
+        // 2. 飛到定位 (500ms)
         setTimeout(() => {
-            // 左邊 (現狀)
-            c1.cardDom.style.transform = 'translate(-160%, -50%) scale(1.0) rotate(-5deg)';
+            if (isMobile) {
+                // === 手機版：金字塔排列 ===
+                // c1 (現狀): 左上
+                // c2 (渴望): 右上
+                // c3 (結果): 正下方 (主角)
+                
+                // translate(-110%) 代表往左移超過一個身位
+                // translate(10%) 代表往右移一點點
+                c1.cardDom.style.transform = 'translate(-110%, -130%) scale(0.9) rotate(-5deg)';
+                
+                c2.cardDom.style.transform = 'translate(10%, -130%) scale(0.9) rotate(5deg)';
+                
+                c3.cardDom.style.transform = 'translate(-50%, -10%) scale(1.2) rotate(0deg)';
+                
+            } else {
+                // === 電腦版：水平排列 ===
+                c1.cardDom.style.transform = 'translate(-160%, -50%) scale(1.0) rotate(-5deg)';
+                c2.cardDom.style.transform = 'translate(60%, -50%) scale(1.0) rotate(5deg)';
+                c3.cardDom.style.transform = 'translate(-50%, -50%) scale(1.4) rotate(0deg)';
+            }
+
+            // 加入 selected class 確保層級正確
             c1.cardDom.classList.add('selected'); 
-
-            // 右邊 (渴望)
-            c2.cardDom.style.transform = 'translate(60%, -50%) scale(1.0) rotate(5deg)';
             c2.cardDom.classList.add('selected');
-
-            // 中間 (結果)
-            c3.cardDom.style.transform = 'translate(-50%, -50%) scale(1.4) rotate(0deg)';
             c3.cardDom.classList.add('selected');
-            c3.cardDom.style.zIndex = '3000';
+            c3.cardDom.style.zIndex = '3000'; // 主角最高
         }, 500);
 
-        // 依序翻牌，並傳入對應的標籤文字
-        // split('(')[0] 是為了只取中文名 (例如 "0. 愚者") 去掉後面的英文
+        // 3. 依序翻牌
         setTimeout(() => flipCard(c1, "現狀"), 1200);
         setTimeout(() => flipCard(c2, "渴望"), 1600);
         setTimeout(() => flipCard(c3, "指引"), 2200);
 
+        // 4. 顯示結果彈窗 (延遲到大家都翻完)
         setTimeout(() => {
             showResultModal(selectedCards[2].data);
         }, 3200);
     }
 
-    // ★★★ 修改重點 2：動態加入文字標籤 ★★★
     function flipCard(cardObj, labelText) {
         const dom = cardObj.cardDom;
         const data = cardObj.data;
         
-        // 建立標籤元素
-        // 為了版面簡潔，我們只取牌名的一小部分，或者顯示全名
-        // 這裡顯示 "現狀：0. 愚者"
+        // 建立標籤
         const cardNameSimple = data.card.split('(')[0].trim(); 
         const labelDiv = document.createElement('div');
         labelDiv.className = 'card-label';
         labelDiv.innerText = `${labelText}：${cardNameSimple}`;
-        
-        // 把標籤塞進卡片裡
         dom.appendChild(labelDiv);
 
         dom.classList.add('flipping');
@@ -129,13 +162,11 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 300);
     }
 
-    // ... (showResultModal, typeWriter, closeBtn, window.onclick, initGame 都保持不變) ...
-    // 為求完整性，這裡還是附上 showResultModal 以防萬一
-    
     function showResultModal(finalCardData) {
         resultImg.src = finalCardData.img;
         cardNameBox.innerText = finalCardData.card;
         destBox.innerHTML = `<img src="${finalCardData.flag}" class="flag-icon" alt="flag"> ${finalCardData.dest}`;
+        
         imgContainer.classList.remove('reveal-show');
         imgContainer.classList.add('reveal-pending');
         destBox.classList.remove('reveal-show');
@@ -145,6 +176,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
         const card1 = selectedCards[0].data; 
         const card2 = selectedCards[1].data; 
+        
         const analysisText = `牌陣顯示，你目前正處於「${card1.keywords}」的狀態，而你的靈魂深處渴望著「${card2.keywords}」。\n\n綜合這兩股能量，宇宙為你指引的出口是……`;
         const fullText = `${analysisText}\n${finalCardData.dest}。\n\n${finalCardData.advice}\n${finalCardData.text}`;
         
