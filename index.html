@@ -15,6 +15,7 @@
     </header>
 
     <div class="grid-container" id="card-grid">
+        <!-- 卡片會由JS動態生成 -->
         <svg id="connection-layer" width="100%" height="100%" style="position:absolute; top:0; left:0; z-index:1; pointer-events:none; overflow:visible;">
             <line id="line-left" x1="0" y1="0" x2="0" y2="0" stroke="url(#grad1)" stroke-width="3" stroke-linecap="round" opacity="0" filter="url(#glow)"/>
             <line id="line-right" x1="0" y1="0" x2="0" y2="0" stroke="url(#grad1)" stroke-width="3" stroke-linecap="round" opacity="0" filter="url(#glow)"/>
@@ -30,10 +31,10 @@
     </div>
 
     <div id="bottom-prompt">
-        <p class="subtitle">你的靈魂，正在召喚哪個遠方？</p>
+        <p class="subtitle">請選擇3張牌，探索你的命定旅程</p> <!-- 明確提示操作 -->
     </div>
 
-    <button id="shuffle-btn" onclick="location.reload()">↻ 重新洗牌</button>
+    <button id="shuffle-btn">↻ 重新洗牌</button> <!-- 移除inline事件 -->
 
     <div id="result-overlay">
         <div class="result-box">
