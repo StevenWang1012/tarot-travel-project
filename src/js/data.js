@@ -104,4 +104,57 @@ export const tarotData = [
     { 
         id: 14, 
         card: "XIV. 節制 (Temperance)", 
-        img: "https://
+        img: "https://upload.wikimedia.org/wikipedia/commons/f/f8/RWS_Tarot_14_Temperance.jpg",
+        dest: "🇨🇦 加拿大・班夫", 
+        text: "尋找冰與火、身與心的調和。在洛磯山脈的湖光山色中，療癒疲憊已久的靈魂。" 
+    },
+    { 
+        id: 15, 
+        card: "XV. 惡魔 (The Devil)", 
+        img: "https://upload.wikimedia.org/wikipedia/commons/5/55/RWS_Tarot_15_Devil.jpg",
+        dest: "🇹🇭 泰國・芭達雅", 
+        text: "誠實面對你的慾望吧！偶爾的放縱不是罪，去享受一場物質與感官的狂歡派對。" 
+    },
+    { 
+        id: 16, 
+        card: "XVI. 高塔 (The Tower)", 
+        img: "https://upload.wikimedia.org/wikipedia/commons/5/53/RWS_Tarot_16_Tower.jpg",
+        dest: "🇺🇸 美國・大峽谷", 
+        text: "打破現有的框架與信念！你需要大自然鬼斧神工的震撼，來重組你的價值觀。" 
+    },
+    { 
+        id: 17, 
+        card: "XVII. 星星 (The Star)", 
+        img: "https://upload.wikimedia.org/wikipedia/commons/d/db/RWS_Tarot_17_Star.jpg",
+        dest: "🇳🇿 紐西蘭", 
+        text: "希望能指引方向。在蒂卡波湖無光害的星空下，許下願望，感受純粹的療癒能量。" 
+    },
+    { 
+        id: 18, 
+        card: "XVIII. 月亮 (The Moon)", 
+        img: "https://upload.wikimedia.org/wikipedia/commons/7/7f/RWS_Tarot_18_Moon.jpg",
+        dest: "󠁧󠁢󠁳󠁣󠁴󠁿 英國・蘇格蘭高地", 
+        text: "直覺往往比邏輯重要。在迷霧、古堡與傳說中，探索你潛意識深處的夢境。" 
+    },
+    { 
+        id: 19, 
+        card: "XIX. 太陽 (The Sun)", 
+        img: "https://upload.wikimedia.org/wikipedia/commons/1/17/RWS_Tarot_19_Sun.jpg",
+        dest: "🇮🇹 義大利・西西里島", 
+        text: "擁抱純粹的快樂與生命力！燦爛陽光、蔚藍地中海，讓你像孩子一樣開懷大笑。" 
+    },
+    { 
+        id: 20, 
+        card: "XX. 審判 (Judgement)", 
+        img: "https://upload.wikimedia.org/wikipedia/commons/d/dd/RWS_Tarot_20_Judgement.jpg",
+        dest: "🇵🇪 秘魯・馬丘比丘", 
+        text: "這是一聲來自靈魂的召喚。走上印加古道，完成你人生清單中最重要的拼圖，迎來覺醒。" 
+    },
+    { 
+        id: 21, 
+        card: "XXI. 世界 (The World)", 
+        img: "https://upload.wikimedia.org/wikipedia/commons/f/ff/RWS_Tarot_21_World.jpg",
+        dest: "🚢 環球遊輪", 
+        text: "旅程的終點是圓滿與整合。不用再選擇，去擁抱整個世界，享受達成目標的成就感。" 
+    }
+];
