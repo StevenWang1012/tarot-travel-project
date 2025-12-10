@@ -11,13 +11,13 @@
 body {
     font-family: "PingFang TC", "Microsoft JhengHei", sans-serif;
     background-color: var(--bg);
-    background-image: radial-gradient(circle at 50% 70%, #2a1a3e 0%, #000000 80%);
+    background-image: radial-gradient(circle at 50% 60%, #2a1a3e 0%, #000000 90%);
     color: var(--primary);
     text-align: center;
     margin: 0;
     padding: 0;
     height: 100vh;
-    overflow: hidden; /* 禁止整個頁面捲動 */
+    overflow: hidden; /* 禁止捲動 */
     position: relative;
 }
 
@@ -42,9 +42,10 @@ h1 {
 }
 
 p.subtitle {
-    color: #888;
+    color: #fff; /* 改回白色 */
     font-size: 0.9rem;
     letter-spacing: 2px;
+    opacity: 0.8;
 }
 
 /* =========================================
@@ -74,11 +75,12 @@ button:hover {
 }
 
 /* =========================================
-   4. 牌桌容器
+   4. 牌桌容器 (位置修正)
    ========================================= */
 .grid-container {
     position: absolute;
-    top: 75%;
+    /* 這裡控制扇形的高度，70% 是一個很剛好的位置 */
+    top: 70%; 
     left: 50%;
     transform: translate(-50%, -50%);
     width: 100%;
@@ -112,7 +114,6 @@ button:hover {
     pointer-events: auto;
     z-index: 100;
     
-    /* 紋理 */
     background-image: 
         linear-gradient(135deg, rgba(255,215,0,0.1) 25%, transparent 25%, transparent 50%, rgba(255,215,0,0.1) 50%, rgba(255,215,0,0.1) 75%, transparent 75%, transparent),
         linear-gradient(135deg, #4a1c40 0%, #180529 100%);
@@ -131,7 +132,7 @@ button:hover {
     opacity: 0.8;
 }
 
-/* Hover 微動 */
+/* Hover 效果 (輕微上浮，不要太誇張) */
 .card:hover {
     z-index: 1000 !important;
     border-color: #fff;
@@ -140,52 +141,43 @@ button:hover {
 
 /* --- 動畫狀態 --- */
 
-/* 1. 抽出階段 (Pre-Select)：輕輕上移 */
-.card.pre-select {
-    z-index: 1500 !important;
-    border-color: var(--gold);
-    box-shadow: 0 0 30px var(--gold);
-    /* 保持角度，只往上移一點點 */
-    /* JS 會寫入具體的 transform，這裡主要控制陰影和層級 */
-}
-
-/* 2. 被選中 (Selected)：飛到螢幕正中央 */
+/* 1. 被選中 (Selected)：直接定位到螢幕正中央 */
 .card.selected {
-    /* 使用固定定位技巧來置中 */
-    /* 這會覆蓋掉 grid-container 的相對位置，確保絕對居中 */
     position: fixed;
-    top: 50% !important;
+    /* 【關鍵】強制在螢幕正中間 */
+    top: 50% !important; 
     left: 50% !important;
     bottom: auto !important;
     margin: 0 !important;
     
-    /* 修正中心點 */
-    transform: translate(-50%, -50%) scale(1.5) rotate(0deg) !important;
+    /* 修正中心點，並放大 */
+    transform: translate(-50%, -50%) scale(1.6) rotate(0deg) !important;
     
     z-index: 2000 !important;
-    box-shadow: 0 0 50px var(--gold);
+    box-shadow: 0 0 60px var(--gold);
     border: 3px solid #fff;
     cursor: default;
-    transition: all 0.8s cubic-bezier(0.2, 1, 0.3, 1); /* 飛慢一點比較優雅 */
+    /* 飛行時間設定為 0.6秒 */
+    transition: all 0.6s cubic-bezier(0.2, 1, 0.3, 1); 
 }
 
-/* 3. 翻轉中 */
+/* 2. 翻轉中 (轉 90度) */
 .card.flipping {
-    transform: translate(-50%, -50%) scale(1.5) rotateY(90deg) !important;
+    transform: translate(-50%, -50%) scale(1.6) rotateY(90deg) !important;
 }
 
-/* 4. 已揭曉 */
+/* 3. 已揭曉 (正面) */
 .card.revealed {
-    transform: translate(-50%, -50%) scale(1.5) rotateY(0deg) !important;
+    transform: translate(-50%, -50%) scale(1.6) rotateY(0deg) !important;
     background-color: #000;
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
-    box-shadow: 0 0 60px rgba(255, 215, 0, 0.3); 
+    box-shadow: 0 0 80px rgba(255, 215, 0, 0.4); 
 }
 .card.revealed::after { opacity: 0; }
 
-/* 淡出 */
+/* 沒被選中：淡出並往下掉 */
 .card.fade-out {
     opacity: 0;
     pointer-events: none;
@@ -194,30 +186,31 @@ button:hover {
 }
 
 /* =========================================
-   6. 結果彈窗 (Compact Version)
+   6. 結果彈窗 (手機優化版)
    ========================================= */
 #result-overlay {
     display: none;
     position: fixed;
     top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(5, 5, 10, 0.8); /* 背景暗一點 */
+    background: rgba(5, 5, 10, 0.85); /* 背景更暗一點，凸顯內容 */
     backdrop-filter: blur(10px);
     z-index: 9999;
     align-items: center;
     justify-content: center;
-    animation: fadeIn 0.5s ease-out;
-    padding: 15px; /* 縮小邊距 */
+    animation: fadeIn 0.4s ease-out;
+    padding: 15px;
     box-sizing: border-box;
 }
 
 .result-box {
     background: rgba(20, 10, 35, 0.95);
     color: #fff;
-    padding: 25px; /* 內距縮小 */
+    padding: 30px;
     border-radius: 16px;
     max-width: 800px;
     width: 100%;
-    max-height: 90vh; /* 確保不超過螢幕高度 */
+    /* 限制高度，確保手機版內容不會被切掉 */
+    max-height: 90vh; 
     
     border: 1px solid var(--accent);
     box-shadow: 0 0 40px rgba(100, 50, 200, 0.4);
@@ -227,7 +220,7 @@ button:hover {
     align-items: center;
     gap: 30px;
     text-align: left;
-    overflow: hidden; /* 防止內部捲動 */
+    overflow: hidden; 
 }
 
 .tarot-img-container { 
@@ -239,9 +232,9 @@ button:hover {
 
 .tarot-img-container img {
     width: 100%; 
-    max-width: 240px; /* 圖片縮小一點 */
+    max-width: 240px; 
     height: auto;
-    max-height: 50vh; /* 限制圖片高度，避免手機版撐開 */
+    max-height: 50vh; 
     object-fit: contain;
     border-radius: 8px; 
     box-shadow: 0 5px 30px rgba(0,0,0,0.6);
@@ -264,7 +257,7 @@ button:hover {
 }
 
 .dest-name { 
-    font-size: 2rem; /* 字體稍微縮小 */
+    font-size: 2rem; 
     font-weight: 800; 
     margin: 0 0 15px 0; 
     background: linear-gradient(45deg, #fff 30%, var(--gold) 100%);
@@ -280,7 +273,6 @@ button:hover {
     margin-bottom: 20px; 
     border-left: 3px solid var(--gold); 
     padding-left: 15px;
-    /* 限制文字行數 (選用) */
     display: -webkit-box;
     -webkit-line-clamp: 4;
     -webkit-box-orient: vertical;
@@ -307,12 +299,12 @@ button:hover {
 
 @keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
 
-/* === 手機版極致收納 (無捲動設計) === */
+/* === 手機版調整 === */
 @media (max-width: 768px) {
     #intro { top: 10%; }
     h1 { font-size: 1.8rem; }
     
-    .grid-container { top: 70%; height: 400px; }
+    .grid-container { top: 65%; height: 400px; }
     .card { width: 90px; height: 140px; margin-left: -45px; }
 
     .result-box { 
@@ -320,14 +312,11 @@ button:hover {
         text-align: center; 
         padding: 20px; 
         gap: 15px;
-        max-width: 90%;
     }
     
-    /* 讓圖片跟內容並排 (橫式佈局) 或者極致壓縮 */
-    /* 這裡採用縮小圖片策略，確保一眼看完全部 */
     .tarot-img-container { flex: 0 0 auto; }
     .tarot-img-container img { 
-        max-width: 140px; /* 手機版圖片改小 */
+        max-width: 140px; 
         max-height: 180px; 
     }
 
@@ -344,10 +333,10 @@ button:hover {
         padding-top: 10px; 
         padding-left: 0; 
         margin-bottom: 15px;
-        -webkit-line-clamp: 3; /* 手機版最多顯示 3 行文字 */
+        -webkit-line-clamp: 3; 
     }
 
-    .btn-line { width: 100%; justify-content: center; padding: 10px 0; }
+    .btn-line { width: 100%; justify-content: center; }
     
     .close-btn { top: 10px; right: 15px; font-size: 28px; }
 }
