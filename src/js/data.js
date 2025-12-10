@@ -133,7 +133,7 @@ export const tarotData = [
         id: 18, 
         card: "XVIII. 月亮 (The Moon)", 
         img: "https://upload.wikimedia.org/wikipedia/commons/7/7f/RWS_Tarot_18_Moon.jpg",
-        dest: "󠁧󠁢󠁳󠁣󠁴󠁿 英國・蘇格蘭高地", 
+        dest: "󠁧󠁢󠁳󠁣󠁴󠁿🇬🇧 英國・蘇格蘭高地", 
         text: "直覺往往比邏輯重要。在迷霧、古堡與傳說中，探索你潛意識深處的夢境。" 
     },
     { 
