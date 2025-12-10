@@ -4,62 +4,49 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>靈魂羅盤：2025 你的命定旅程</title>
-    
     <meta property="og:title" content="靈魂羅盤：你的靈魂正在召喚哪個遠方？" />
     <meta property="og:description" content="透過聖三角牌陣，揭示潛意識渴望的旅行地圖。點擊立即占卜。" />
     <meta property="og:image" content="https://upload.wikimedia.org/wikipedia/commons/9/90/RWS_Tarot_00_Fool.jpg" />
     <meta property="og:type" content="website" />
-
     <link rel="stylesheet" href="src/css/style.css">
 </head>
 <body>
 
-    <div id="intro">
+    <header id="main-header">
         <h1>靈魂羅盤</h1>
-        <p class="subtitle">你的靈魂，正在召喚哪個遠方？</p>
-    </div>
-
-    <button onclick="location.reload()">↻ 重新洗牌</button>
+    </header>
 
     <div class="grid-container" id="card-grid">
-        
         <svg id="connection-layer" width="100%" height="100%" style="position:absolute; top:0; left:0; z-index:1; pointer-events:none; overflow:visible;">
             <line id="line-left" x1="0" y1="0" x2="0" y2="0" stroke="url(#grad1)" stroke-width="3" stroke-linecap="round" opacity="0" filter="url(#glow)"/>
-            
             <line id="line-right" x1="0" y1="0" x2="0" y2="0" stroke="url(#grad1)" stroke-width="3" stroke-linecap="round" opacity="0" filter="url(#glow)"/>
-            
             <defs>
                 <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="0%">
                     <stop offset="0%" style="stop-color:#ffd700;stop-opacity:0.1" />
                     <stop offset="50%" style="stop-color:#fff;stop-opacity:1" />
                     <stop offset="100%" style="stop-color:#ffd700;stop-opacity:0.1" />
                 </linearGradient>
-                <filter id="glow">
-                    <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
-                    <feMerge>
-                        <feMergeNode in="coloredBlur"/>
-                        <feMergeNode in="SourceGraphic"/>
-                    </feMerge>
-                </filter>
+                <filter id="glow"><feGaussianBlur stdDeviation="3" result="coloredBlur"/><feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
             </defs>
         </svg>
+    </div>
 
-        </div>
+    <div id="prompt-area">
+        <p class="subtitle">你的靈魂，正在召喚哪個遠方？</p>
+    </div>
+
+    <button onclick="location.reload()">↻ 重新洗牌</button>
 
     <div id="result-overlay">
         <div class="result-box">
             <span class="close-btn" id="close-btn">×</span>
+            <div id="dynamic-content-area"></div> 
             
-            <div class="tarot-img-container">
-                <img id="r-img" src="" alt="Tarot Card">
-            </div>
-
             <div class="result-content">
-                <div class="tarot-name" id="r-card"></div> <div class="dest-name" id="r-dest"></div>  <div class="quote" id="r-quote"></div>     <a href="#" class="btn-line" id="cta-btn" target="_blank">
-                    現在安排旅程 (洽詢 LINE) ➔
-                </a>
+                <div class="dest-name reveal-pending" id="r-dest"></div>
+                <div class="quote" id="r-quote"></div>
+                <a href="#" class="btn-line reveal-pending" id="cta-btn" target="_blank">現在安排旅程 (洽詢 LINE) ➔</a>
             </div>
-
         </div>
     </div>
 
