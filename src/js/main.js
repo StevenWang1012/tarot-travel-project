@@ -1,16 +1,17 @@
 // src/js/main.js
 
-// 檢查資料是否成功載入
-if (typeof window.tarotData === 'undefined') {
-    console.error("錯誤：找不到 tarotData，請確認 data.js 是否在 main.js 之前載入。");
+// 檢查資料
+if (typeof window.tarotData === 'undefined' || typeof window.soulMissions === 'undefined') {
+    console.error("錯誤：資料載入失敗，請確認 data.js 是否完整。");
 }
 
 const cardData = window.tarotData || []; 
+const missionData = window.soulMissions || [];
 
 // 全局變數
 let displayedCards = []; 
 let selectedCards = [];  
-let userBirthday = ""; // 儲存使用者生日 (計算流年用)
+let userBirthday = ""; 
 
 // DOM 元素
 const startScreen = document.getElementById('start-screen');
@@ -29,17 +30,15 @@ if (startBtn) {
     startBtn.addEventListener('click', () => {
         const dateVal = birthdayInput.value;
         if (!dateVal) {
-            alert("請先選擇您的出生年月日，讓我們連結您的流年能量。");
+            alert("請先選擇您的出生年月日，讓我們連結您的靈魂矩陣。");
             return;
         }
 
         userBirthday = dateVal;
         
-        // 儀式感：按鈕變色
-        startBtn.textContent = "✦ 正在連結宇宙流年...";
+        startBtn.textContent = "✦ 正在下載靈魂數據...";
         startBtn.style.opacity = "0.8";
 
-        // 模擬運算延遲
         setTimeout(() => {
             startScreen.style.opacity = '0';
             setTimeout(() => {
@@ -62,7 +61,6 @@ function initCards() {
         document.body.style.overflow = ''; 
     }
 
-    // 顯示所有 22 張牌
     displayedCards = [...cardData].sort(() => Math.random() - 0.5);
 
     displayedCards.forEach((card, index) => {
@@ -105,19 +103,22 @@ function handleCardClick(cardEl, cardData) {
     }
 }
 
-// === 核心：靈魂流年演算法 ===
-function calculateSoulDest(birthdayString, cardId) {
-    // 1. 處理生日：移除符號 (例如 "1990-05-20" -> 19900520)
-    const birthNumber = parseInt(birthdayString.replace(/-/g, ''));
-    
-    // 2. 獲取當前年份 (流年關鍵)
+// === 核心運算：流年地點 + 靈魂任務 ===
+function calculateDestiny(birthdayString, cardId) {
+    const dateObj = new Date(birthdayString);
+    const birthYear = dateObj.getFullYear();
+    const birthMonth = dateObj.getMonth() + 1;
+    const birthDay = dateObj.getDate();
     const currentYear = new Date().getFullYear();
     
-    // 3. 核心公式：(生日 + 牌ID + 年份) 除以 3 取餘數
-    // 結果會是 0, 1, 或 2
-    const magicNumber = (birthNumber + cardId + currentYear) % 3;
+    // 1. 地點演算法 (Where): (出生年 + 卡牌ID + 當前年) % 3
+    const cityIndex = (birthYear + cardId + currentYear) % 3;
 
-    return magicNumber; // 回傳索引值 (0=TypeA, 1=TypeB, 2=TypeC)
+    // 2. 任務演算法 (What): (月 + 日) % 9
+    // 讓任務與地點脫鉤，增加隨機組合的樂趣
+    const missionIndex = (birthMonth + birthDay) % 9;
+
+    return { cityIndex, missionIndex };
 }
 
 function showResult() {
@@ -125,14 +126,15 @@ function showResult() {
 
     const currentCard = selectedCards[0]; 
     const desireCard = selectedCards[1];  
-    const destCardRaw = selectedCards[2]; // 這是原始卡片資料
+    const destCardRaw = selectedCards[2]; 
 
-    // 運用演算法，算出「流年命定城市」
-    // 從 destCardRaw.cities 陣列中，挑出 0, 1, 或 2
-    const magicIndex = calculateSoulDest(userBirthday, destCardRaw.id);
-    const finalDest = destCardRaw.cities[magicIndex];
+    // 取得運算結果
+    const { cityIndex, missionIndex } = calculateDestiny(userBirthday, destCardRaw.id);
+    
+    const finalDest = destCardRaw.cities[cityIndex];
+    const finalMission = missionData[missionIndex];
 
-    // 渲染上方圖示
+    // 渲染卡片
     resultCardsContainer.innerHTML = '';
     selectedCards.forEach((card, index) => {
         const wrapper = document.createElement('div');
@@ -143,7 +145,7 @@ function showResult() {
         label.textContent = index === 0 ? "現狀" : index === 1 ? "指引" : "目的地";
 
         const img = document.createElement('img');
-        img.src = card.img; // 這裡依然顯示塔羅牌原本的圖
+        img.src = card.img; 
         img.alt = card.card;
         img.className = 'tarot-img';
 
@@ -156,8 +158,7 @@ function showResult() {
         resultCardsContainer.appendChild(wrapper);
     });
 
-    // 渲染文字分析
-    // 注意：這裡的最後一段，使用了 finalDest (算出來的城市) 的資料
+    // 渲染文案 (新增任務區塊)
     analysisContent.innerHTML = `
         <div class="analysis-section">
             <h4>✦ 靈魂現狀</h4>
@@ -169,7 +170,7 @@ function showResult() {
             <p>你的靈魂深處告訴你：<strong>「${desireCard.advice}」</strong>這張牌暗示你需要${desireCard.keywords}。</p>
         </div>
 
-        <div class="dest-divider">▼ 宇宙為你指引的命定之地 ▼</div>
+        <div class="dest-divider">▼ 宇宙流年指引 ▼</div>
 
         <div class="dest-section">
             <h2 class="dest-title">
@@ -177,6 +178,12 @@ function showResult() {
                 ${finalDest.name}
             </h2>
             <p class="dest-quote">"${finalDest.text}"</p>
+        </div>
+
+        <div class="mission-section">
+            <div class="mission-label">✦ 你的靈魂任務 ✦</div>
+            <h3 class="mission-title">${finalMission.title}</h3>
+            <p class="mission-desc">${finalMission.desc}</p>
         </div>
     `;
 
