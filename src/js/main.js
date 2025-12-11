@@ -1,5 +1,6 @@
 // src/js/main.js
 
+// 檢查資料
 if (typeof window.tarotData === 'undefined' || typeof window.soulMissions === 'undefined') {
     console.error("錯誤：資料載入失敗，請確認 data.js 是否完整。");
 }
@@ -68,6 +69,7 @@ function populateWheel(container, max, min, selectedVal) {
 function createItem(container, val, selectedVal) {
     const div = document.createElement('div');
     div.className = 'wheel-item';
+    // 這裡只是顯示用的補0，不影響 dataset.val
     div.textContent = val < 10 ? `0${val}` : val;
     div.dataset.val = val;
     if (val === selectedVal) div.classList.add('active');
@@ -97,7 +99,8 @@ function highlightActive(wheel) {
 
 function getWheelValue(wheel) {
     const active = wheel.querySelector('.wheel-item.active');
-    return active ? active.dataset.val : null;
+    // 確保回傳的是字串，方便後續處理
+    return active ? active.dataset.val.toString() : null;
 }
 
 if (startBtn) {
@@ -111,7 +114,15 @@ if (startBtn) {
             return;
         }
 
-        userBirthday = `${y}-${m}-${d}`;
+        // === 關鍵修正：針對 Safari 的日期格式修復 ===
+        // 將 "1" 變成 "01"，確保格式為 "YYYY-MM-DD"
+        const mm = m.padStart(2, '0');
+        const dd = d.padStart(2, '0');
+        
+        userBirthday = `${y}-${mm}-${dd}`;
+        
+        // 偵錯用：您可以在朋友手機的 console 看到這個值，現在應該是標準格式了
+        console.log("User Birthday:", userBirthday);
         
         startBtn.textContent = "✦ 正在下載靈魂數據...";
         startBtn.style.opacity = "0.8";
@@ -142,16 +153,11 @@ function initCards() {
 
     displayedCards = [...cardData].sort(() => Math.random() - 0.5);
 
-    // === 關鍵修改：RWD 間距計算 ===
     const containerWidth = window.innerWidth;
     const isMobile = containerWidth < 768;
-    // 手機卡片寬60，桌面100
     const cardWidth = isMobile ? 60 : 100; 
     
-    // 計算間距 (確保22張牌寬度不超過螢幕的 95%)
     let step = (containerWidth * 0.95 - cardWidth) / (displayedCards.length - 1);
-    
-    // 限制最大最小間距
     if (step > 25) step = 25;
     if (step < 5) step = 5;
 
@@ -161,7 +167,7 @@ function initCards() {
         cardEl.dataset.id = card.id;
         
         const totalCards = displayedCards.length;
-        const maxAngle = isMobile ? 40 : 60; // 手機角度小一點
+        const maxAngle = isMobile ? 40 : 60; 
         const angleStep = maxAngle / (totalCards - 1);
         const angle = (index - (totalCards - 1) / 2) * angleStep;
         
@@ -198,14 +204,23 @@ function handleCardClick(cardEl, cardData) {
     }
 }
 
-function calculateDestiny(birthdayString, cardId) {
+// === 核心運算 ===
+function calculateDestinyIndices(birthdayString, cardId, cityOptionsCount) {
+    // 這裡現在會接收到標準的 "1995-01-05"，Safari 就不會報錯了
     const dateObj = new Date(birthdayString);
+    
+    // 防呆檢查：如果日期還是無效，提供預設值
+    if (isNaN(dateObj.getTime())) {
+        console.error("Invalid Date:", birthdayString);
+        return { cityIndex: 0, missionIndex: 0 };
+    }
+
     const birthYear = dateObj.getFullYear();
     const birthMonth = dateObj.getMonth() + 1;
     const birthDay = dateObj.getDate();
     const currentYear = new Date().getFullYear();
     
-    const cityIndex = (birthYear + cardId + currentYear) % 3;
+    const cityIndex = (birthYear + cardId + currentYear) % cityOptionsCount;
     const missionIndex = (birthMonth + birthDay) % 9;
 
     return { cityIndex, missionIndex };
@@ -218,7 +233,9 @@ function showResult() {
     const desireCard = selectedCards[1];  
     const destCardRaw = selectedCards[2]; 
 
-    const { cityIndex, missionIndex } = calculateDestiny(userBirthday, destCardRaw.id);
+    const cityCount = destCardRaw.cities.length;
+
+    const { cityIndex, missionIndex } = calculateDestinyIndices(userBirthday, destCardRaw.id, cityCount);
     
     const finalDest = destCardRaw.cities[cityIndex];
     const finalMission = missionData[missionIndex];
