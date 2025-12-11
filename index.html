@@ -2,7 +2,7 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>靈魂羅盤：2025 你的命定旅程</title>
     <meta property="og:title" content="靈魂羅盤：你的靈魂正在召喚哪個遠方？" />
     <meta property="og:image" content="https://upload.wikimedia.org/wikipedia/commons/9/90/RWS_Tarot_00_Fool.jpg" />
@@ -12,16 +12,28 @@
     <header id="top-header">
         <h1>靈魂羅盤</h1>
     </header>
-    
-    <div id="question-text">
-        <p>你的靈魂，正在召喚哪個遠方？</p>
-        <p class="subtext">請憑直覺選擇 3 張牌</p>
-    </div>
-    
-    <div class="card-container" id="card-container">
+
+    <div id="start-screen">
+        <p class="intro-text">輸入你的誕生日<br>連結宇宙流年</p>
+        
+        <div class="date-picker-wrapper">
+            <input type="date" id="birthday-input" required>
         </div>
 
-    <button id="shuffle-btn">↻ 重新洗牌</button>
+        <button id="start-btn">開始靈魂探索</button>
+    </div>
+
+    <div id="main-interface" style="display: none;">
+        <div id="question-text">
+            <p>你的靈魂，正在召喚哪個遠方？</p>
+            <p class="subtext">請憑直覺選擇 3 張牌</p>
+        </div>
+
+        <div class="card-container" id="card-container">
+            </div>
+
+        <button id="shuffle-btn">↻ 重新洗牌</button>
+    </div>
 
     <div id="result-modal" class="modal">
         <div class="modal-content">
