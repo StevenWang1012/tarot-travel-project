@@ -16,18 +16,22 @@
     <div id="start-screen">
         <p class="intro-text">輸入你的誕生日<br>連結宇宙流年</p>
         
-        <div class="date-scroll-wrapper">
-            <div class="select-group">
-                <label>Year</label>
-                <select id="birth-year" class="scroll-select"></select>
+        <div class="picker-container">
+            <div class="picker-highlight"></div>
+            
+            <div class="wheel-column">
+                <div class="wheel-label">Year</div>
+                <div class="wheel-scroll" id="year-wheel"></div>
             </div>
-            <div class="select-group">
-                <label>Month</label>
-                <select id="birth-month" class="scroll-select"></select>
+
+            <div class="wheel-column">
+                <div class="wheel-label">Month</div>
+                <div class="wheel-scroll" id="month-wheel"></div>
             </div>
-            <div class="select-group">
-                <label>Day</label>
-                <select id="birth-day" class="scroll-select"></select>
+
+            <div class="wheel-column">
+                <div class="wheel-label">Day</div>
+                <div class="wheel-scroll" id="day-wheel"></div>
             </div>
         </div>
 
@@ -40,8 +44,7 @@
             <p class="subtext">請憑直覺選擇 3 張牌</p>
         </div>
 
-        <div class="card-container" id="card-container">
-            </div>
+        <div class="card-container" id="card-container"></div>
 
         <button id="shuffle-btn">↻ 重新洗牌</button>
     </div>
@@ -49,13 +52,10 @@
     <div id="result-modal" class="modal">
         <div class="modal-content">
             <span class="close-btn">&times;</span>
-            
             <div class="result-cards"></div>
-
             <div class="result-text">
                 <div id="analysis-content"></div>
             </div>
-            
             <a href="https://line.me/" class="line-btn" target="_blank">洽詢旅程安排</a>
         </div>
     </div>
