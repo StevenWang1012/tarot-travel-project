@@ -1,3 +1,5 @@
+/* src/css/style.css - 最終修復版 */
+
 /* 全局樣式 */
 * {
     margin: 0;
@@ -13,9 +15,9 @@ body {
     min-height: 100vh;
     position: relative;
     overflow: hidden; 
-    display: flex;       /* 新增：使用 Flex 排版 */
+    display: flex;       /* 使用 Flex 排版 */
     flex-direction: column;
-    align-items: center;
+    align-items: center; /* 水平置中 */
 }
 
 /* 頁頭標題 */
@@ -23,25 +25,27 @@ body {
     text-align: center;
     padding: 20px 0;
     z-index: 10;
+    flex-shrink: 0; /* 防止標題被壓縮 */
 }
 
 #top-header h1 {
-    font-size: 2.5rem;
+    font-size: 2.2rem; /* 手機版標題稍微改小一點點 */
     color: #dfa6ff;
     text-shadow: 0 0 20px rgba(200, 166, 255, 0.6);
-    letter-spacing: 8px;
+    letter-spacing: 5px;
 }
 
-/* 詢問文字 (改為自然流動排版) */
+/* 詢問文字 */
 #question-text {
     text-align: center;
-    margin-bottom: 10px; /* 與卡片保持距離 */
+    margin-bottom: 10px;
     z-index: 10;
     padding: 0 20px;
+    flex-shrink: 0;
 }
 
 #question-text p {
-    font-size: 1.2rem;
+    font-size: 1.1rem;
     letter-spacing: 2px;
     margin-bottom: 5px;
     text-shadow: 0 2px 10px rgba(0,0,0,0.8);
@@ -55,24 +59,26 @@ body {
 /* 卡片容器 */
 .card-container {
     width: 100%;
-    height: 350px; /* 稍微縮小高度，讓畫面更緊湊 */
+    height: 320px; /* 高度適中 */
     position: relative;
-    margin-top: 20px;
+    margin-top: 10px;
     perspective: 1000px;
+    flex-grow: 1; /* 佔據剩餘空間 */
 }
 
 /* 卡片樣式 */
 .tarot-card {
-    width: 100px;  /* 稍微縮小寬度以容納22張 */
-    height: 170px; /* 稍微縮小高度 */
+    width: 90px;
+    height: 160px;
     background: linear-gradient(135deg, #4a1c40 0%, #250935 100%);
     border: 2px solid #ffd700;
     border-radius: 8px;
     position: absolute;
-    bottom: 20px; /* 靠底部對齊 */
+    bottom: 30px;
     cursor: pointer;
     transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
     box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+    /* 牌背花紋 */
     background-image: 
         linear-gradient(135deg, rgba(255,215,0,0.1) 25%, transparent 25%, transparent 50%, rgba(255,215,0,0.1) 50%, rgba(255,215,0,0.1) 75%, transparent 75%, transparent),
         linear-gradient(135deg, #4a1c40 0%, #180529 100%);
@@ -106,8 +112,7 @@ body {
 
 /* 洗牌按鈕 */
 #shuffle-btn {
-    margin-top: auto; /* 推到底部 */
-    margin-bottom: 30px;
+    margin: 20px 0 40px; /* 上下留白 */
     background: transparent;
     border: 1px solid #dfa6ff;
     color: #dfa6ff;
@@ -116,6 +121,7 @@ body {
     cursor: pointer;
     font-size: 1rem;
     z-index: 30;
+    flex-shrink: 0;
     transition: all 0.3s ease;
 }
 
@@ -124,7 +130,7 @@ body {
     color: #000;
 }
 
-/* 結果彈窗樣式 (保持不變) */
+/* === 結果彈窗 (修復重點) === */
 .modal {
     display: none;
     position: fixed;
@@ -132,20 +138,20 @@ body {
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0,0,0,0.95);
+    background: rgba(0,0,0,0.9);
     z-index: 2000;
     align-items: center;
     justify-content: center;
-    padding: 20px;
+    padding: 20px; /* 這裡保留邊距 */
     overflow-y: auto;
 }
 
 .modal-content {
     background: linear-gradient(to bottom, #1a0f2e, #000);
     border-radius: 15px;
-    padding: 30px 20px;
+    padding: 25px 20px; /* 內邊距 */
     max-width: 600px;
-    width: 100%;
+    width: 100%; /* 會受到 modal padding 的限制，不會貼邊 */
     border: 1px solid #dfa6ff;
     position: relative;
     text-align: center;
@@ -157,25 +163,28 @@ body {
 .close-btn {
     position: absolute;
     top: 10px;
-    right: 20px;
+    right: 15px;
     font-size: 2rem;
     cursor: pointer;
     color: #ccc;
     z-index: 10;
 }
 
+/* 結果裡的卡片展示區 - 重點修改 */
 .result-cards {
     display: flex;
-    justify-content: center;
-    gap: 10px;
+    justify-content: space-between; /* 自動平均分配空間 */
+    gap: 10px; /* 卡片間距 */
     margin-bottom: 25px;
+    width: 100%;
 }
 
 .result-card-item {
     display: flex;
     flex-direction: column;
     align-items: center;
-    width: 32%;
+    flex: 1; /* 關鍵：讓三張牌平均平分寬度，而不是固定寬度 */
+    min-width: 0; /* 關鍵：防止內容撐開容器 */
 }
 
 .card-label {
@@ -186,21 +195,29 @@ body {
 }
 
 .tarot-img {
-    width: 100%;
+    width: 100%; /* 圖片寬度跟隨容器 */
+    height: auto;
     border-radius: 5px;
     border: 1px solid #ffd700;
     box-shadow: 0 0 10px rgba(0,0,0,0.5);
+    aspect-ratio: 2/3.5; /* 強制保持比例 */
+    object-fit: cover;
 }
 
 .result-card-item p {
     font-size: 0.8rem;
     margin-top: 5px;
     color: #fff;
+    white-space: nowrap; /* 防止名字換行 */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: 100%;
 }
 
+/* 結果文字分析區 */
 .result-text {
     text-align: left;
-    padding: 0 10px;
+    padding: 0 5px;
     color: #ddd;
     line-height: 1.6;
 }
@@ -247,6 +264,7 @@ body {
     align-items: center;
     justify-content: center;
     gap: 10px;
+    flex-wrap: wrap; /* 如果標題太長可以換行 */
 }
 
 .dest-flag {
@@ -259,12 +277,12 @@ body {
 .dest-quote {
     font-style: italic;
     color: #fff;
-    font-size: 1.1rem;
+    font-size: 1rem; /* 稍微縮小字體 */
 }
 
 .line-btn {
     display: block;
-    width: 80%;
+    width: 100%; /* 手機版按鈕全寬 */
     margin: 0 auto;
     background: #06C755;
     color: #fff;
@@ -282,9 +300,22 @@ body {
     transform: translateY(-2px);
 }
 
-/* RWD 調整 */
-@media (max-width: 768px) {
-    #top-header h1 { font-size: 1.8rem; }
-    .tarot-card { width: 80px; height: 140px; } /* 手機版卡片再小一點 */
-    #question-text p { font-size: 1rem; }
+/* === 極小螢幕修正 (iPhone SE 等) === */
+@media (max-width: 380px) {
+    .tarot-card {
+        width: 75px; /* 卡片再縮小 */
+        height: 135px;
+    }
+    
+    .modal-content {
+        padding: 20px 10px; /* 內邊距減少，爭取空間 */
+    }
+
+    .result-cards {
+        gap: 5px; /* 間距縮小 */
+    }
+
+    .dest-title {
+        font-size: 1.5rem;
+    }
 }
