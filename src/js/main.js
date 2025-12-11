@@ -3,15 +3,13 @@
 // 檢查資料是否成功載入
 if (typeof window.tarotData === 'undefined') {
     console.error("錯誤：找不到 tarotData，請確認 data.js 是否在 main.js 之前載入。");
-    alert("系統載入錯誤，請重新整理頁面");
 }
 
-// 取得資料（因為已經掛載在 window 上，可以直接使用 tarotData）
-const cardData = window.tarotData; 
+const cardData = window.tarotData || []; 
 
 // 全局變數
-let displayedCards = []; // 桌面上顯示的牌
-let selectedCards = [];  // 使用者選中的牌 (按順序)
+let displayedCards = []; 
+let selectedCards = [];  
 const cardContainer = document.getElementById('card-container');
 const resultModal = document.getElementById('result-modal');
 const closeBtn = document.querySelector('.close-btn');
@@ -19,91 +17,79 @@ const shuffleBtn = document.getElementById('shuffle-btn');
 const analysisContent = document.getElementById('analysis-content');
 const resultCardsContainer = document.querySelector('.result-cards');
 
-// 初始化：頁面載入時洗牌
 document.addEventListener('DOMContentLoaded', initCards);
 
-// 洗牌並發牌
 function initCards() {
-    if (!cardContainer) {
-        console.error("錯誤：找不到 card-container 元素，請檢查 HTML");
-        return;
-    }
+    if (!cardContainer) return;
     
     cardContainer.innerHTML = '';
     selectedCards = [];
     if(resultModal) resultModal.style.display = 'none';
 
-    // 1. 從完整牌庫中隨機抽取 10 張牌放在桌面上供選擇
-    // 使用 cardData 替代之前的 tarotData
-    displayedCards = [...cardData]
-        .sort(() => Math.random() - 0.5)
-        .slice(0, 10);
+    // 1. 修改這裡：顯示所有牌 (22張)，不再切片
+    displayedCards = [...cardData].sort(() => Math.random() - 0.5);
 
-    // 2. 渲染卡片到介面
+    // 2. 渲染卡片
     displayedCards.forEach((card, index) => {
         const cardEl = document.createElement('div');
         cardEl.className = 'tarot-card';
         cardEl.dataset.id = card.id;
         
-        // 扇形排列計算
         const totalCards = displayedCards.length;
-        const angle = (index - (totalCards - 1) / 2) * 5; // 每張相差5度
-        const yOffset = Math.abs(index - (totalCards - 1) / 2) * 5; // 兩側稍微下沉
+        
+        // --- 關鍵修改：調整排列密度 ---
+        // 角度間距變小：從 5度 改成 3度 (避免兩側太開)
+        const angle = (index - (totalCards - 1) / 2) * 3; 
+        
+        // 垂直下沉幅度調整
+        const yOffset = Math.abs(index - (totalCards - 1) / 2) * 3; 
 
         cardEl.style.transform = `rotate(${angle}deg) translateY(${yOffset}px)`;
         
-        // 計算水平位置
-        const step = window.innerWidth < 768 ? 30 : 60; 
-        const offset = (index - (totalCards - 1) / 2) * step;
-        cardEl.style.left = `calc(50% + ${offset}px - 60px)`; 
-
-        // 點擊事件
-        cardEl.addEventListener('click', () => handleCardClick(cardEl, card));
+        // 水平間距 (Step) 變小：桌面版 25px，手機版 12px (讓牌疊在一起)
+        const isMobile = window.innerWidth < 768;
+        const step = isMobile ? 12 : 25; 
+        const cardWidth = isMobile ? 80 : 100; // 對應 CSS 的寬度
         
+        const offset = (index - (totalCards - 1) / 2) * step;
+        
+        // 修正 left 計算，確保置中
+        cardEl.style.left = `calc(50% + ${offset}px - ${cardWidth / 2}px)`; 
+
+        cardEl.addEventListener('click', () => handleCardClick(cardEl, card));
         cardContainer.appendChild(cardEl);
     });
 }
 
-// 處理卡片點擊
 function handleCardClick(cardEl, cardData) {
-    // 如果已經選了這張，則取消選擇
     if (selectedCards.some(c => c.id === cardData.id)) {
         cardEl.classList.remove('selected');
         selectedCards = selectedCards.filter(c => c.id !== cardData.id);
         return;
     }
 
-    // 檢查是否已選滿 3 張
-    if (selectedCards.length >= 3) {
-        return; 
-    }
+    if (selectedCards.length >= 3) return;
 
-    // 選取卡片
     cardEl.classList.add('selected');
     selectedCards.push(cardData);
 
-    // 如果選滿 3 張，延遲後顯示結果
     if (selectedCards.length === 3) {
         setTimeout(showResult, 800); 
     }
 }
 
-// 顯示結果
 function showResult() {
     if (selectedCards.length < 3) return;
 
-    // 定義三張牌的角色
-    const currentCard = selectedCards[0]; // 現狀
-    const desireCard = selectedCards[1];  // 渴望/建議
-    const destCard = selectedCards[2];    // 最終目的地
+    const currentCard = selectedCards[0]; 
+    const desireCard = selectedCards[1];  
+    const destCard = selectedCards[2];    
 
-    // 1. 渲染上方三張牌圖示
     resultCardsContainer.innerHTML = '';
     selectedCards.forEach((card, index) => {
         const wrapper = document.createElement('div');
         wrapper.className = 'result-card-item';
         
-        // 標籤：第幾張牌
         const label = document.createElement('span');
         label.className = 'card-label';
         label.textContent = index === 0 ? "現狀" : index === 1 ? "指引" : "目的地";
@@ -122,7 +108,6 @@ function showResult() {
         resultCardsContainer.appendChild(wrapper);
     });
 
-    // 2. 渲染三段式文字分析
     analysisContent.innerHTML = `
         <div class="analysis-section">
             <h4>✦ 靈魂現狀</h4>
@@ -145,11 +130,9 @@ function showResult() {
         </div>
     `;
 
-    // 顯示彈窗
     if(resultModal) resultModal.style.display = 'flex';
 }
 
-// 關閉彈窗
 if(closeBtn) {
     closeBtn.addEventListener('click', () => {
         resultModal.style.display = 'none';
@@ -157,7 +140,6 @@ if(closeBtn) {
     });
 }
 
-// 點擊遮罩層也可關閉
 window.addEventListener('click', (e) => {
     if (e.target === resultModal) {
         resultModal.style.display = 'none';
@@ -165,7 +147,6 @@ window.addEventListener('click', (e) => {
     }
 });
 
-// 重新洗牌按鈕
 if(shuffleBtn) {
     shuffleBtn.addEventListener('click', initCards);
 }
