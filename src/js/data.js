@@ -1,7 +1,6 @@
-// 匯出資料庫：包含牌名、目的地、文案、以及【真實圖檔連結】
-// 圖源使用 Wikimedia Commons (Public Domain)
-
-export const tarotData = [
+// src/js/data.js
+// 將資料掛載到 window 物件上，這樣 main.js 就能直接讀取
+window.tarotData = [
     { 
         id: 0, 
         card: "0. 愚者", 
