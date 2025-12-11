@@ -1,6 +1,5 @@
 // src/js/main.js
 
-// 檢查資料
 if (typeof window.tarotData === 'undefined' || typeof window.soulMissions === 'undefined') {
     console.error("錯誤：資料載入失敗，請確認 data.js 是否完整。");
 }
@@ -8,14 +7,11 @@ if (typeof window.tarotData === 'undefined' || typeof window.soulMissions === 'u
 const cardData = window.tarotData || []; 
 const missionData = window.soulMissions || [];
 
-// 全局變數
 let displayedCards = []; 
 let selectedCards = [];  
 let userBirthday = ""; 
-// 關鍵變數：是否鎖定點擊
 let isLocked = false;
 
-// DOM 元素
 const startScreen = document.getElementById('start-screen');
 const startBtn = document.getElementById('start-btn');
 const mainInterface = document.getElementById('main-interface');
@@ -26,7 +22,6 @@ const shuffleBtn = document.getElementById('shuffle-btn');
 const analysisContent = document.getElementById('analysis-content');
 const resultCardsContainer = document.querySelector('.result-cards');
 
-// 滾輪元素
 const yearWheel = document.getElementById('year-wheel');
 const monthWheel = document.getElementById('month-wheel');
 const dayWheel = document.getElementById('day-wheel');
@@ -37,7 +32,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-// === 3D 滾輪邏輯 ===
 function initWheels() {
     const currentYear = new Date().getFullYear();
     populateWheel(yearWheel, 2025, 1950, 2000); 
@@ -106,7 +100,6 @@ function getWheelValue(wheel) {
     return active ? active.dataset.val : null;
 }
 
-// 監聽開始按鈕
 if (startBtn) {
     startBtn.addEventListener('click', () => {
         const y = getWheelValue(yearWheel);
@@ -139,8 +132,6 @@ function initCards() {
     
     cardContainer.innerHTML = '';
     selectedCards = [];
-    
-    // === 關鍵修改：重置鎖定狀態 ===
     isLocked = false;
     cardContainer.classList.remove('locked');
     
@@ -151,10 +142,16 @@ function initCards() {
 
     displayedCards = [...cardData].sort(() => Math.random() - 0.5);
 
-    // 動態計算間距 (修正手機版裁切問題)
+    // === 關鍵修改：RWD 間距計算 ===
     const containerWidth = window.innerWidth;
-    const cardWidth = 85; 
+    const isMobile = containerWidth < 768;
+    // 手機卡片寬60，桌面100
+    const cardWidth = isMobile ? 60 : 100; 
+    
+    // 計算間距 (確保22張牌寬度不超過螢幕的 95%)
     let step = (containerWidth * 0.95 - cardWidth) / (displayedCards.length - 1);
+    
+    // 限制最大最小間距
     if (step > 25) step = 25;
     if (step < 5) step = 5;
 
@@ -164,11 +161,11 @@ function initCards() {
         cardEl.dataset.id = card.id;
         
         const totalCards = displayedCards.length;
-        const maxAngle = window.innerWidth < 768 ? 40 : 60; 
+        const maxAngle = isMobile ? 40 : 60; // 手機角度小一點
         const angleStep = maxAngle / (totalCards - 1);
         const angle = (index - (totalCards - 1) / 2) * angleStep;
         
-        const yOffset = Math.abs(index - (totalCards - 1) / 2) * (window.innerWidth < 768 ? 2 : 4); 
+        const yOffset = Math.abs(index - (totalCards - 1) / 2) * (isMobile ? 2 : 4); 
 
         cardEl.style.transform = `rotate(${angle}deg) translateY(${yOffset}px)`;
         
@@ -181,29 +178,22 @@ function initCards() {
 }
 
 function handleCardClick(cardEl, cardData) {
-    // === 關鍵修改：如果已鎖定，直接無視點擊 ===
     if (isLocked) return;
 
-    // 如果點擊已選中的牌，則取消選擇
     if (selectedCards.some(c => c.id === cardData.id)) {
         cardEl.classList.remove('selected');
         selectedCards = selectedCards.filter(c => c.id !== cardData.id);
         return;
     }
 
-    // (理論上這裡已經有 isLocked 保護，但保留雙重保險)
     if (selectedCards.length >= 3) return;
 
-    // 選中
     cardEl.classList.add('selected');
     selectedCards.push(cardData);
 
-    // 檢查是否選滿 3 張
     if (selectedCards.length === 3) {
-        // === 關鍵修改：立刻鎖定介面！ ===
         isLocked = true;
-        cardContainer.classList.add('locked'); // CSS 會加上 pointer-events: none
-        
+        cardContainer.classList.add('locked');
         setTimeout(showResult, 800); 
     }
 }
