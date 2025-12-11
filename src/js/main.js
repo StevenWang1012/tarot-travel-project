@@ -12,6 +12,8 @@ const missionData = window.soulMissions || [];
 let displayedCards = []; 
 let selectedCards = [];  
 let userBirthday = ""; 
+// 關鍵變數：是否鎖定點擊
+let isLocked = false;
 
 // DOM 元素
 const startScreen = document.getElementById('start-screen');
@@ -29,38 +31,28 @@ const yearWheel = document.getElementById('year-wheel');
 const monthWheel = document.getElementById('month-wheel');
 const dayWheel = document.getElementById('day-wheel');
 
-// 初始化
 document.addEventListener('DOMContentLoaded', () => {
     if (yearWheel && monthWheel && dayWheel) {
         initWheels();
     }
-    // 預先準備卡片，但先不顯示
 });
 
 // === 3D 滾輪邏輯 ===
 function initWheels() {
     const currentYear = new Date().getFullYear();
-    // 年份：1950 ~ 2025
     populateWheel(yearWheel, 2025, 1950, 2000); 
-    // 月份：1 ~ 12
     populateWheel(monthWheel, 12, 1, new Date().getMonth() + 1);
-    // 日期：1 ~ 31
     populateWheel(dayWheel, 31, 1, new Date().getDate());
 
-    // 綁定滾動音效或吸附邏輯 (這裡依賴 CSS scroll-snap)
     [yearWheel, monthWheel, dayWheel].forEach(wheel => {
         wheel.addEventListener('scroll', () => highlightActive(wheel));
-        // 初始化高亮
         highlightActive(wheel);
     });
 }
 
 function populateWheel(container, max, min, selectedVal) {
-    // 前後加空白元素，讓第一個和最後一個選項能捲到中間
     container.innerHTML = '<div class="wheel-spacer"></div>';
-    
-    // 判斷是遞增還是遞減
-    if (max > min && max > 1000) { // 年份通常是倒序比較好找
+    if (max > min && max > 1000) { 
         for (let i = max; i >= min; i--) {
             createItem(container, i, selectedVal);
         }
@@ -69,10 +61,8 @@ function populateWheel(container, max, min, selectedVal) {
             createItem(container, i, selectedVal);
         }
     }
-    
     container.innerHTML += '<div class="wheel-spacer"></div>';
     
-    // 滾動到預設值
     setTimeout(() => {
         const active = container.querySelector(`.wheel-item[data-val="${selectedVal}"]`);
         if (active) {
@@ -84,7 +74,7 @@ function populateWheel(container, max, min, selectedVal) {
 function createItem(container, val, selectedVal) {
     const div = document.createElement('div');
     div.className = 'wheel-item';
-    div.textContent = val < 10 ? `0${val}` : val; // 補零
+    div.textContent = val < 10 ? `0${val}` : val;
     div.dataset.val = val;
     if (val === selectedVal) div.classList.add('active');
     container.appendChild(div);
@@ -93,14 +83,12 @@ function createItem(container, val, selectedVal) {
 function highlightActive(wheel) {
     const center = wheel.scrollTop + (wheel.clientHeight / 2);
     const items = wheel.querySelectorAll('.wheel-item');
-    
     let minDist = Infinity;
     let activeItem = null;
 
     items.forEach(item => {
         const itemCenter = item.offsetTop + (item.offsetHeight / 2);
         const dist = Math.abs(center - itemCenter);
-        
         if (dist < minDist) {
             minDist = dist;
             activeItem = item;
@@ -140,7 +128,7 @@ if (startBtn) {
             setTimeout(() => {
                 startScreen.style.display = 'none';
                 mainInterface.style.display = 'flex';
-                initCards(); // 顯示介面時再生成卡片，確保寬度計算正確
+                initCards(); 
             }, 500);
         }, 1000);
     });
@@ -152,28 +140,22 @@ function initCards() {
     cardContainer.innerHTML = '';
     selectedCards = [];
     
+    // === 關鍵修改：重置鎖定狀態 ===
+    isLocked = false;
+    cardContainer.classList.remove('locked');
+    
     if(resultModal) {
         resultModal.style.display = 'none';
         document.body.style.overflow = ''; 
     }
 
-    // 顯示所有 22 張牌
     displayedCards = [...cardData].sort(() => Math.random() - 0.5);
 
-    // === 關鍵修改：動態計算間距 ===
-    // 獲取容器寬度
+    // 動態計算間距 (修正手機版裁切問題)
     const containerWidth = window.innerWidth;
-    // 卡片寬度 (CSS設定是85px)
     const cardWidth = 85; 
-    // 我們希望 22 張牌展開後，寬度大約佔螢幕的 95%
-    // 總寬度 = (數量-1) * 間距 + 卡片寬度
-    // 所以 間距 = (螢幕寬 * 0.95 - 卡片寬) / (數量-1)
-    
     let step = (containerWidth * 0.95 - cardWidth) / (displayedCards.length - 1);
-    
-    // 設定最大間距，避免桌面版太開
     if (step > 25) step = 25;
-    // 設定最小間距，避免疊太死 (雖然理論上不會，因為是照螢幕算的)
     if (step < 5) step = 5;
 
     displayedCards.forEach((card, index) => {
@@ -182,18 +164,14 @@ function initCards() {
         cardEl.dataset.id = card.id;
         
         const totalCards = displayedCards.length;
-        // 角度也稍微隨螢幕調整，手機版角度小一點比較好看
-        const maxAngle = window.innerWidth < 768 ? 40 : 60; // 總展開角度
+        const maxAngle = window.innerWidth < 768 ? 40 : 60; 
         const angleStep = maxAngle / (totalCards - 1);
         const angle = (index - (totalCards - 1) / 2) * angleStep;
         
-        // 垂直位移：兩側下沉
         const yOffset = Math.abs(index - (totalCards - 1) / 2) * (window.innerWidth < 768 ? 2 : 4); 
 
         cardEl.style.transform = `rotate(${angle}deg) translateY(${yOffset}px)`;
         
-        // 計算 Left 位置
-        // 中心點是 50%，然後往左右推
         const offset = (index - (totalCards - 1) / 2) * step;
         cardEl.style.left = `calc(50% + ${offset}px - ${cardWidth / 2}px)`; 
 
@@ -203,23 +181,33 @@ function initCards() {
 }
 
 function handleCardClick(cardEl, cardData) {
+    // === 關鍵修改：如果已鎖定，直接無視點擊 ===
+    if (isLocked) return;
+
+    // 如果點擊已選中的牌，則取消選擇
     if (selectedCards.some(c => c.id === cardData.id)) {
         cardEl.classList.remove('selected');
         selectedCards = selectedCards.filter(c => c.id !== cardData.id);
         return;
     }
 
+    // (理論上這裡已經有 isLocked 保護，但保留雙重保險)
     if (selectedCards.length >= 3) return;
 
+    // 選中
     cardEl.classList.add('selected');
     selectedCards.push(cardData);
 
+    // 檢查是否選滿 3 張
     if (selectedCards.length === 3) {
+        // === 關鍵修改：立刻鎖定介面！ ===
+        isLocked = true;
+        cardContainer.classList.add('locked'); // CSS 會加上 pointer-events: none
+        
         setTimeout(showResult, 800); 
     }
 }
 
-// === 核心運算：流年地點 + 靈魂任務 ===
 function calculateDestiny(birthdayString, cardId) {
     const dateObj = new Date(birthdayString);
     const birthYear = dateObj.getFullYear();
