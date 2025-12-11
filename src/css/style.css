@@ -1,4 +1,4 @@
-/* src/css/style.css - 響應式與鎖定優化版 */
+/* src/css/style.css - 佈局置中修正版 */
 
 /* 全局樣式 */
 * {
@@ -15,20 +15,25 @@ body {
     background: #0b0b15;
     background-image: radial-gradient(circle at top, #2a1a3e 0%, #000 100%);
     color: #fff;
-    min-height: 100vh;
+    /* 使用 100dvh (動態視窗高度) 解決手機瀏覽器網址列遮擋問題，若不支援則退回 100vh */
+    height: 100vh;
+    height: 100dvh; 
     position: relative;
-    overflow-x: hidden; /* 禁止左右滑動 */
+    overflow: hidden; /* 禁止滑動，固定版面 */
     display: flex;       
     flex-direction: column;
-    align-items: center;
-    /* 關鍵：禁止手機網頁下拉時的回彈效果 (橡皮筋效果) */
+    align-items: center; /* 水平置中 */
+    justify-content: center; /* 新增：垂直置中，讓所有內容集中在畫面中央 */
+    /* 禁止橡皮筋效果 */
     overscroll-behavior: none;
+    padding-bottom: 20px; /* 底部留點緩衝 */
 }
 
 /* 頁頭標題 */
 #top-header {
     text-align: center;
-    padding: 20px 0;
+    /* padding: 20px 0;  <-- 減少 padding */
+    margin-bottom: 15px; /* 改用 margin 控制間距 */
     z-index: 10;
     flex-shrink: 0;
 }
@@ -43,14 +48,14 @@ body {
 /* 詢問文字 */
 #question-text {
     text-align: center;
-    margin-bottom: 10px;
+    margin-bottom: 20px; /* 增加與卡片的距離 */
     z-index: 10;
     padding: 0 20px;
     flex-shrink: 0;
 }
 
 #question-text p {
-    font-size: 1rem;
+    font-size: 1.1rem;
     letter-spacing: 2px;
     margin-bottom: 5px;
     text-shadow: 0 2px 10px rgba(0,0,0,0.8);
@@ -64,13 +69,12 @@ body {
 /* 卡片容器 */
 .card-container {
     width: 100%;
-    height: 320px;
+    height: 300px; /* 設定固定高度 */
     position: relative;
-    margin-top: 10px;
+    /* margin-top: 10px; <-- 移除 */
     perspective: 1000px;
-    flex-grow: 1;
-    /* 防止卡片超出容器導致滑動 */
-    overflow: hidden; 
+    /* flex-grow: 1; <-- 關鍵修改：移除自動伸展，讓它不再撐開空間 */
+    overflow: visible; /* 允許卡片在旋轉時稍微超出邊界，避免被切 */
 }
 
 /* 卡片樣式 */
@@ -81,10 +85,12 @@ body {
     border: 2px solid #ffd700;
     border-radius: 8px;
     position: absolute;
-    bottom: 30px;
+    /* bottom: 30px; <-- 修改這裡 */
+    bottom: 70px; /* 將卡片在容器內向上移動，遠離底部邊緣 */
     cursor: pointer;
     transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
     box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+    /* 牌背花紋 */
     background-image: 
         linear-gradient(135deg, rgba(255,215,0,0.1) 25%, transparent 25%, transparent 50%, rgba(255,215,0,0.1) 50%, rgba(255,215,0,0.1) 75%, transparent 75%, transparent),
         linear-gradient(135deg, #4a1c40 0%, #180529 100%);
@@ -118,11 +124,11 @@ body {
 
 /* 洗牌按鈕 */
 #shuffle-btn {
-    margin: 10px 0 30px;
+    margin-top: 20px; /* 與卡片保持距離 */
     background: transparent;
     border: 1px solid #dfa6ff;
     color: #dfa6ff;
-    padding: 8px 25px;
+    padding: 8px 30px;
     border-radius: 30px;
     cursor: pointer;
     font-size: 0.9rem;
@@ -136,7 +142,7 @@ body {
     color: #000;
 }
 
-/* === 結果彈窗 (重點修正) === */
+/* === 結果彈窗 (保持不變) === */
 .modal {
     display: none;
     position: fixed;
@@ -144,18 +150,17 @@ body {
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0,0,0,0.95); /* 加深背景，遮住後面 */
+    background: rgba(0,0,0,0.95);
     z-index: 2000;
     align-items: center;
     justify-content: center;
-    padding: 10px; /* 減少外部邊距 */
-    /* 這裡不需要 overflow，因為內容在 modal-content 滾動 */
+    padding: 10px;
 }
 
 .modal-content {
     background: linear-gradient(to bottom, #1a0f2e, #000);
     border-radius: 12px;
-    padding: 20px 10px; /* 手機版左右內縮極小化 */
+    padding: 20px 10px;
     width: 100%; 
     max-width: 500px;
     border: 1px solid #dfa6ff;
@@ -163,15 +168,13 @@ body {
     text-align: center;
     box-shadow: 0 0 50px rgba(100, 50, 200, 0.5);
     max-height: 95vh;
-    overflow-y: auto; /* 內容過長時只在這裡滾動 */
-    
-    /* 隱藏滾動條但保持功能 */
-    -ms-overflow-style: none;  /* IE and Edge */
-    scrollbar-width: none;  /* Firefox */
+    overflow-y: auto;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
 }
 
 .modal-content::-webkit-scrollbar {
-    display: none; /* Chrome, Safari, Opera */
+    display: none;
 }
 
 .close-btn {
@@ -182,14 +185,13 @@ body {
     cursor: pointer;
     color: #ccc;
     z-index: 10;
-    padding: 5px; /* 增加點擊範圍 */
+    padding: 5px;
 }
 
-/* 結果裡的卡片展示區 */
 .result-cards {
     display: flex;
     justify-content: space-between; 
-    gap: 4px; /* 極限縮小間距 */
+    gap: 4px;
     margin-bottom: 20px;
     width: 100%;
 }
@@ -220,7 +222,7 @@ body {
 }
 
 .result-card-item p {
-    font-size: 0.7rem; /* 字體縮小，避免撐開 */
+    font-size: 0.7rem;
     margin-top: 3px;
     color: #fff;
     white-space: nowrap; 
@@ -229,7 +231,6 @@ body {
     width: 100%;
 }
 
-/* 結果文字分析區 */
 .result-text {
     text-align: left;
     padding: 0 5px;
@@ -319,7 +320,6 @@ body {
     transform: translateY(-2px);
 }
 
-/* 針對大螢幕的優化 */
 @media (min-width: 768px) {
     .modal-content {
         padding: 30px;
@@ -331,5 +331,16 @@ body {
     .tarot-card {
         width: 100px;
         height: 180px;
+    }
+    /* 桌面版可以稍微放鬆一點 */
+    body {
+        justify-content: flex-start;
+        padding-top: 30px;
+    }
+    .card-container {
+        height: 400px;
+    }
+    .tarot-card {
+        bottom: 100px;
     }
 }
