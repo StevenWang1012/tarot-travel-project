@@ -1,6 +1,6 @@
-/* 全局樣式保持不變... 僅列出新增或修改部分 */
-/* 請將以下內容覆蓋或添加到原有的 CSS 文件中 */
+/* src/css/style.css - 完整版 */
 
+/* 全局樣式 */
 * {
     margin: 0;
     padding: 0;
@@ -35,7 +35,7 @@ body {
 /* 卡片容器 */
 .card-container {
     width: 100%;
-    height: 450px; /* 稍微加高 */
+    height: 450px; /* 加高以容納新尺寸 */
     position: relative;
     margin: 20px auto 50px;
     z-index: 20;
@@ -50,7 +50,7 @@ body {
     border: 2px solid #ffd700;
     border-radius: 10px;
     position: absolute;
-    bottom: 50px; /* 離底部一點距離 */
+    bottom: 50px;
     cursor: pointer;
     transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
     box-shadow: 0 5px 15px rgba(0,0,0,0.5);
@@ -73,8 +73,9 @@ body {
     text-shadow: 0 0 10px #ffd700;
 }
 
+/* 滑鼠懸停效果 */
 .tarot-card:hover {
-    transform: translateY(-20px) scale(1.1) !important; /* hover時上浮，!important覆蓋行內樣式 */
+    transform: translateY(-20px) scale(1.1) !important;
     z-index: 100 !important;
     border-color: #fff;
     box-shadow: 0 0 20px rgba(223, 166, 255, 0.6);
@@ -153,7 +154,7 @@ body {
     background: linear-gradient(to bottom, #1a0f2e, #000);
     border-radius: 15px;
     padding: 30px 20px;
-    max-width: 600px; /* 稍微縮窄一點，適合閱讀 */
+    max-width: 600px;
     width: 100%;
     border: 1px solid #dfa6ff;
     position: relative;
@@ -173,7 +174,7 @@ body {
     z-index: 10;
 }
 
-/* 結果裡的卡片展示 */
+/* 結果裡的卡片展示區 */
 .result-cards {
     display: flex;
     justify-content: center;
@@ -293,7 +294,7 @@ body {
     transform: translateY(-2px);
 }
 
-/* RWD 調整 */
+/* 響應式調整 (手機版) */
 @media (max-width: 768px) {
     .tarot-card {
         width: 90px;
