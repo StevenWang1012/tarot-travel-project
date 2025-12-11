@@ -1,4 +1,13 @@
-import { tarotData } from './data.js';
+// src/js/main.js
+
+// 檢查資料是否成功載入
+if (typeof window.tarotData === 'undefined') {
+    console.error("錯誤：找不到 tarotData，請確認 data.js 是否在 main.js 之前載入。");
+    alert("系統載入錯誤，請重新整理頁面");
+}
+
+// 取得資料（因為已經掛載在 window 上，可以直接使用 tarotData）
+const cardData = window.tarotData; 
 
 // 全局變數
 let displayedCards = []; // 桌面上顯示的牌
@@ -15,13 +24,18 @@ document.addEventListener('DOMContentLoaded', initCards);
 
 // 洗牌並發牌
 function initCards() {
+    if (!cardContainer) {
+        console.error("錯誤：找不到 card-container 元素，請檢查 HTML");
+        return;
+    }
+    
     cardContainer.innerHTML = '';
     selectedCards = [];
-    resultModal.style.display = 'none';
+    if(resultModal) resultModal.style.display = 'none';
 
     // 1. 從完整牌庫中隨機抽取 10 張牌放在桌面上供選擇
-    // (全顯示22張會太擠，隨機取10張營造"命運"感)
-    displayedCards = [...tarotData]
+    // 使用 cardData 替代之前的 tarotData
+    displayedCards = [...cardData]
         .sort(() => Math.random() - 0.5)
         .slice(0, 10);
 
@@ -38,16 +52,10 @@ function initCards() {
 
         cardEl.style.transform = `rotate(${angle}deg) translateY(${yOffset}px)`;
         
-        // 計算水平位置，讓它們稍微重疊但展開
-        // 視窗寬度越小，間距應該越小
+        // 計算水平位置
         const step = window.innerWidth < 768 ? 30 : 60; 
-        const startLeft = 50; // 50% 處
-        // 這裡用 CSS calc 來定位，讓所有牌以中心為基準向左右展開
-        // 簡單點：直接用 flex 或者 absolute left 計算
-        // 為了扇形效果，這裡手動計算 left
-        // 假設中心是 50%，每張牌偏移 step
         const offset = (index - (totalCards - 1) / 2) * step;
-        cardEl.style.left = `calc(50% + ${offset}px - 60px)`; // 60px是卡片寬度的一半
+        cardEl.style.left = `calc(50% + ${offset}px - 60px)`; 
 
         // 點擊事件
         cardEl.addEventListener('click', () => handleCardClick(cardEl, card));
@@ -67,7 +75,7 @@ function handleCardClick(cardEl, cardData) {
 
     // 檢查是否已選滿 3 張
     if (selectedCards.length >= 3) {
-        return; // 不做任何事，或者提示已滿
+        return; 
     }
 
     // 選取卡片
@@ -76,7 +84,7 @@ function handleCardClick(cardEl, cardData) {
 
     // 如果選滿 3 張，延遲後顯示結果
     if (selectedCards.length === 3) {
-        setTimeout(showResult, 800); // 稍微停頓讓使用者看到選取狀態
+        setTimeout(showResult, 800); 
     }
 }
 
@@ -106,7 +114,7 @@ function showResult() {
         img.className = 'tarot-img';
 
         const name = document.createElement('p');
-        name.textContent = card.card.split('.')[1]; // 去掉前面的數字編號，只留牌名
+        name.textContent = card.card.split('.')[1]; 
 
         wrapper.appendChild(label);
         wrapper.appendChild(img);
@@ -115,7 +123,6 @@ function showResult() {
     });
 
     // 2. 渲染三段式文字分析
-    // 使用 innerHTML 構建結構
     analysisContent.innerHTML = `
         <div class="analysis-section">
             <h4>✦ 靈魂現狀</h4>
@@ -139,15 +146,16 @@ function showResult() {
     `;
 
     // 顯示彈窗
-    resultModal.style.display = 'flex';
+    if(resultModal) resultModal.style.display = 'flex';
 }
 
 // 關閉彈窗
-closeBtn.addEventListener('click', () => {
-    resultModal.style.display = 'none';
-    // 選擇性：關閉後是否重置？通常建議重置，讓使用者可以重玩
-    initCards(); 
-});
+if(closeBtn) {
+    closeBtn.addEventListener('click', () => {
+        resultModal.style.display = 'none';
+        initCards(); 
+    });
+}
 
 // 點擊遮罩層也可關閉
 window.addEventListener('click', (e) => {
@@ -158,4 +166,6 @@ window.addEventListener('click', (e) => {
 });
 
 // 重新洗牌按鈕
-shuffleBtn.addEventListener('click', initCards);
+if(shuffleBtn) {
+    shuffleBtn.addEventListener('click', initCards);
+}
