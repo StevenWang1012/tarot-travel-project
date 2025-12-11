@@ -1,4 +1,4 @@
-/* src/css/style.css - 佈局置中修正版 */
+/* src/css/style.css - 混搭模組樣式版 */
 
 /* 全局樣式 */
 * {
@@ -262,7 +262,7 @@ body {
     display: flex;
     justify-content: space-between; 
     gap: 4px;
-    margin-bottom: 20px;
+    margin-bottom: 15px;
     width: 100%;
 }
 
@@ -370,6 +370,37 @@ body {
     font-size: 0.9rem; 
 }
 
+/* === 新增：任務區樣式 === */
+.mission-section {
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px dashed #666;
+    text-align: center;
+}
+
+.mission-label {
+    display: inline-block;
+    background: #dfa6ff;
+    color: #000;
+    padding: 2px 10px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: bold;
+    margin-bottom: 8px;
+}
+
+.mission-title {
+    color: #fff;
+    font-size: 1.2rem;
+    margin-bottom: 5px;
+}
+
+.mission-desc {
+    font-size: 0.9rem;
+    color: #ccc;
+    font-style: italic;
+}
+
 .line-btn {
     display: block;
     width: 100%; 
@@ -383,6 +414,7 @@ body {
     transition: all 0.3s ease;
     box-shadow: 0 5px 15px rgba(6, 199, 85, 0.3);
     font-size: 1rem;
+    margin-top: 20px;
 }
 
 .line-btn:hover {
