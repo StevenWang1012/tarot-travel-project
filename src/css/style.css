@@ -1,4 +1,4 @@
-/* src/css/style.css - 星座過場版 */
+/* src/css/style.css - SVG 星座高質感版 */
 
 /* 全局樣式 */
 * {
@@ -164,14 +164,14 @@ body {
     transform: scale(1.05);
 }
 
-/* === 新增：星座過場樣式 === */
+/* === 星座過場樣式 (SVG 優化版) === */
 #zodiac-screen {
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background: #0b0b15; /* 蓋住背景 */
+    background: #0b0b15;
     z-index: 50;
     display: flex;
     justify-content: center;
@@ -182,14 +182,31 @@ body {
 .zodiac-content {
     text-align: center;
     animation: floatUp 1s ease forwards;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
+/* 修改容器樣式，不再用 font-size 控制 */
 #zodiac-icon {
-    font-size: 5rem;
-    color: #ffd700;
-    text-shadow: 0 0 30px rgba(255, 215, 0, 0.5);
+    width: 120px;
+    height: 120px;
     margin-bottom: 20px;
-    animation: pulse 2s infinite;
+    /* 呼吸燈動畫 */
+    animation: pulse 3s infinite ease-in-out;
+}
+
+/* 新增：SVG 線條樣式 */
+.zodiac-svg {
+    width: 100%;
+    height: 100%;
+    fill: none; /* 空心 */
+    stroke: #ffd700; /* 金色線條 */
+    stroke-width: 1.5; /* 線條粗細 */
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    /* 發光特效：多層陰影製造光暈感 */
+    filter: drop-shadow(0 0 5px #ffd700) drop-shadow(0 0 15px rgba(255, 215, 0, 0.5));
 }
 
 #zodiac-name {
@@ -197,6 +214,7 @@ body {
     color: #fff;
     margin-bottom: 10px;
     letter-spacing: 5px;
+    text-shadow: 0 0 10px rgba(255,255,255,0.3);
 }
 
 #zodiac-energy {
@@ -220,7 +238,7 @@ body {
     height: 100%;
     background: #dfa6ff;
     box-shadow: 0 0 10px #dfa6ff;
-    animation: progress 2.5s linear forwards; /* 2.5秒跑完 */
+    animation: progress 2.5s linear forwards;
 }
 
 .loading-text {
@@ -230,9 +248,9 @@ body {
 }
 
 @keyframes pulse {
-    0% { transform: scale(1); text-shadow: 0 0 30px rgba(255, 215, 0, 0.5); }
-    50% { transform: scale(1.1); text-shadow: 0 0 50px rgba(255, 215, 0, 0.8); }
-    100% { transform: scale(1); text-shadow: 0 0 30px rgba(255, 215, 0, 0.5); }
+    0% { transform: scale(1); filter: drop-shadow(0 0 5px #ffd700); }
+    50% { transform: scale(1.05); filter: drop-shadow(0 0 20px #ffd700); }
+    100% { transform: scale(1); filter: drop-shadow(0 0 5px #ffd700); }
 }
 
 @keyframes progress {
