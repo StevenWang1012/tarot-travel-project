@@ -16,7 +16,6 @@ let userBirthday = "";
 // DOM 元素
 const startScreen = document.getElementById('start-screen');
 const startBtn = document.getElementById('start-btn');
-const birthdayInput = document.getElementById('birthday-input');
 const mainInterface = document.getElementById('main-interface');
 const cardContainer = document.getElementById('card-container');
 const resultModal = document.getElementById('result-modal');
@@ -25,16 +24,69 @@ const shuffleBtn = document.getElementById('shuffle-btn');
 const analysisContent = document.getElementById('analysis-content');
 const resultCardsContainer = document.querySelector('.result-cards');
 
+// 新增：滾輪選擇器元素
+const yearSelect = document.getElementById('birth-year');
+const monthSelect = document.getElementById('birth-month');
+const daySelect = document.getElementById('birth-day');
+
+// === 初始化：自動填入年月日選項 ===
+document.addEventListener('DOMContentLoaded', () => {
+    if (yearSelect && monthSelect && daySelect) {
+        populateDateSelects();
+    }
+    initCards(); // 預先準備好卡片
+});
+
+function populateDateSelects() {
+    // 1. 年份：從 2020 到 1950
+    const currentYear = new Date().getFullYear();
+    const endYear = 2025; // 允許選到最新
+    const startYear = 1950;
+    
+    // 預設提示選項
+    addOption(yearSelect, "", "年份");
+    for (let y = endYear; y >= startYear; y--) {
+        addOption(yearSelect, y, y);
+    }
+
+    // 2. 月份：1 ~ 12
+    addOption(monthSelect, "", "月份");
+    for (let m = 1; m <= 12; m++) {
+        addOption(monthSelect, m, m + "月");
+    }
+
+    // 3. 日期：1 ~ 31
+    addOption(daySelect, "", "日期");
+    for (let d = 1; d <= 31; d++) {
+        addOption(daySelect, d, d + "日");
+    }
+}
+
+function addOption(selectElement, value, text) {
+    const option = document.createElement('option');
+    option.value = value;
+    option.textContent = text;
+    selectElement.appendChild(option);
+}
+
 // 監聽開始按鈕
 if (startBtn) {
     startBtn.addEventListener('click', () => {
-        const dateVal = birthdayInput.value;
-        if (!dateVal) {
-            alert("請先選擇您的出生年月日，讓我們連結您的靈魂矩陣。");
+        // 獲取三個滾輪的值
+        const y = yearSelect.value;
+        const m = monthSelect.value;
+        const d = daySelect.value;
+
+        // 檢查是否都有選
+        if (!y || !m || !d) {
+            alert("請完整選擇您的出生年、月、日，讓我們連結您的靈魂矩陣。");
             return;
         }
 
-        userBirthday = dateVal;
+        // 拼湊成 YYYY-MM-DD 格式，補零
+        const mm = m.padStart(2, '0');
+        const dd = d.padStart(2, '0');
+        userBirthday = `${y}-${mm}-${dd}`;
         
         startBtn.textContent = "✦ 正在下載靈魂數據...";
         startBtn.style.opacity = "0.8";
@@ -44,7 +96,8 @@ if (startBtn) {
             setTimeout(() => {
                 startScreen.style.display = 'none';
                 mainInterface.style.display = 'flex';
-                initCards();
+                // 這裡不需要再呼叫 initCards，因為 DOMContentLoaded 時已經呼叫過了
+                // 只需要確保卡片容器是乾淨的並顯示出來
             }, 500);
         }, 1000);
     });
@@ -115,7 +168,6 @@ function calculateDestiny(birthdayString, cardId) {
     const cityIndex = (birthYear + cardId + currentYear) % 3;
 
     // 2. 任務演算法 (What): (月 + 日) % 9
-    // 讓任務與地點脫鉤，增加隨機組合的樂趣
     const missionIndex = (birthMonth + birthDay) % 9;
 
     return { cityIndex, missionIndex };
@@ -158,7 +210,7 @@ function showResult() {
         resultCardsContainer.appendChild(wrapper);
     });
 
-    // 渲染文案 (新增任務區塊)
+    // 渲染文案
     analysisContent.innerHTML = `
         <div class="analysis-section">
             <h4>✦ 靈魂現狀</h4>
