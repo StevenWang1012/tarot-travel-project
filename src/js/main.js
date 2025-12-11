@@ -24,69 +24,113 @@ const shuffleBtn = document.getElementById('shuffle-btn');
 const analysisContent = document.getElementById('analysis-content');
 const resultCardsContainer = document.querySelector('.result-cards');
 
-// 新增：滾輪選擇器元素
-const yearSelect = document.getElementById('birth-year');
-const monthSelect = document.getElementById('birth-month');
-const daySelect = document.getElementById('birth-day');
+// 滾輪元素
+const yearWheel = document.getElementById('year-wheel');
+const monthWheel = document.getElementById('month-wheel');
+const dayWheel = document.getElementById('day-wheel');
 
-// === 初始化：自動填入年月日選項 ===
+// 初始化
 document.addEventListener('DOMContentLoaded', () => {
-    if (yearSelect && monthSelect && daySelect) {
-        populateDateSelects();
+    if (yearWheel && monthWheel && dayWheel) {
+        initWheels();
     }
-    initCards(); // 預先準備好卡片
+    // 預先準備卡片，但先不顯示
 });
 
-function populateDateSelects() {
-    // 1. 年份：從 2020 到 1950
+// === 3D 滾輪邏輯 ===
+function initWheels() {
     const currentYear = new Date().getFullYear();
-    const endYear = 2025; // 允許選到最新
-    const startYear = 1950;
+    // 年份：1950 ~ 2025
+    populateWheel(yearWheel, 2025, 1950, 2000); 
+    // 月份：1 ~ 12
+    populateWheel(monthWheel, 12, 1, new Date().getMonth() + 1);
+    // 日期：1 ~ 31
+    populateWheel(dayWheel, 31, 1, new Date().getDate());
+
+    // 綁定滾動音效或吸附邏輯 (這裡依賴 CSS scroll-snap)
+    [yearWheel, monthWheel, dayWheel].forEach(wheel => {
+        wheel.addEventListener('scroll', () => highlightActive(wheel));
+        // 初始化高亮
+        highlightActive(wheel);
+    });
+}
+
+function populateWheel(container, max, min, selectedVal) {
+    // 前後加空白元素，讓第一個和最後一個選項能捲到中間
+    container.innerHTML = '<div class="wheel-spacer"></div>';
     
-    // 預設提示選項
-    addOption(yearSelect, "", "年份");
-    for (let y = endYear; y >= startYear; y--) {
-        addOption(yearSelect, y, y);
+    // 判斷是遞增還是遞減
+    if (max > min && max > 1000) { // 年份通常是倒序比較好找
+        for (let i = max; i >= min; i--) {
+            createItem(container, i, selectedVal);
+        }
+    } else {
+        for (let i = min; i <= max; i++) {
+            createItem(container, i, selectedVal);
+        }
     }
+    
+    container.innerHTML += '<div class="wheel-spacer"></div>';
+    
+    // 滾動到預設值
+    setTimeout(() => {
+        const active = container.querySelector(`.wheel-item[data-val="${selectedVal}"]`);
+        if (active) {
+            active.scrollIntoView({ block: "center" });
+        }
+    }, 100);
+}
 
-    // 2. 月份：1 ~ 12
-    addOption(monthSelect, "", "月份");
-    for (let m = 1; m <= 12; m++) {
-        addOption(monthSelect, m, m + "月");
-    }
+function createItem(container, val, selectedVal) {
+    const div = document.createElement('div');
+    div.className = 'wheel-item';
+    div.textContent = val < 10 ? `0${val}` : val; // 補零
+    div.dataset.val = val;
+    if (val === selectedVal) div.classList.add('active');
+    container.appendChild(div);
+}
 
-    // 3. 日期：1 ~ 31
-    addOption(daySelect, "", "日期");
-    for (let d = 1; d <= 31; d++) {
-        addOption(daySelect, d, d + "日");
+function highlightActive(wheel) {
+    const center = wheel.scrollTop + (wheel.clientHeight / 2);
+    const items = wheel.querySelectorAll('.wheel-item');
+    
+    let minDist = Infinity;
+    let activeItem = null;
+
+    items.forEach(item => {
+        const itemCenter = item.offsetTop + (item.offsetHeight / 2);
+        const dist = Math.abs(center - itemCenter);
+        
+        if (dist < minDist) {
+            minDist = dist;
+            activeItem = item;
+        }
+        item.classList.remove('active');
+    });
+
+    if (activeItem) {
+        activeItem.classList.add('active');
     }
 }
 
-function addOption(selectElement, value, text) {
-    const option = document.createElement('option');
-    option.value = value;
-    option.textContent = text;
-    selectElement.appendChild(option);
+function getWheelValue(wheel) {
+    const active = wheel.querySelector('.wheel-item.active');
+    return active ? active.dataset.val : null;
 }
 
 // 監聽開始按鈕
 if (startBtn) {
     startBtn.addEventListener('click', () => {
-        // 獲取三個滾輪的值
-        const y = yearSelect.value;
-        const m = monthSelect.value;
-        const d = daySelect.value;
+        const y = getWheelValue(yearWheel);
+        const m = getWheelValue(monthWheel);
+        const d = getWheelValue(dayWheel);
 
-        // 檢查是否都有選
         if (!y || !m || !d) {
-            alert("請完整選擇您的出生年、月、日，讓我們連結您的靈魂矩陣。");
+            alert("請完整選擇您的出生年、月、日");
             return;
         }
 
-        // 拼湊成 YYYY-MM-DD 格式，補零
-        const mm = m.padStart(2, '0');
-        const dd = d.padStart(2, '0');
-        userBirthday = `${y}-${mm}-${dd}`;
+        userBirthday = `${y}-${m}-${d}`;
         
         startBtn.textContent = "✦ 正在下載靈魂數據...";
         startBtn.style.opacity = "0.8";
@@ -96,8 +140,7 @@ if (startBtn) {
             setTimeout(() => {
                 startScreen.style.display = 'none';
                 mainInterface.style.display = 'flex';
-                // 這裡不需要再呼叫 initCards，因為 DOMContentLoaded 時已經呼叫過了
-                // 只需要確保卡片容器是乾淨的並顯示出來
+                initCards(); // 顯示介面時再生成卡片，確保寬度計算正確
             }, 500);
         }, 1000);
     });
@@ -114,7 +157,24 @@ function initCards() {
         document.body.style.overflow = ''; 
     }
 
+    // 顯示所有 22 張牌
     displayedCards = [...cardData].sort(() => Math.random() - 0.5);
+
+    // === 關鍵修改：動態計算間距 ===
+    // 獲取容器寬度
+    const containerWidth = window.innerWidth;
+    // 卡片寬度 (CSS設定是85px)
+    const cardWidth = 85; 
+    // 我們希望 22 張牌展開後，寬度大約佔螢幕的 95%
+    // 總寬度 = (數量-1) * 間距 + 卡片寬度
+    // 所以 間距 = (螢幕寬 * 0.95 - 卡片寬) / (數量-1)
+    
+    let step = (containerWidth * 0.95 - cardWidth) / (displayedCards.length - 1);
+    
+    // 設定最大間距，避免桌面版太開
+    if (step > 25) step = 25;
+    // 設定最小間距，避免疊太死 (雖然理論上不會，因為是照螢幕算的)
+    if (step < 5) step = 5;
 
     displayedCards.forEach((card, index) => {
         const cardEl = document.createElement('div');
@@ -122,15 +182,18 @@ function initCards() {
         cardEl.dataset.id = card.id;
         
         const totalCards = displayedCards.length;
-        const angle = (index - (totalCards - 1) / 2) * 3; 
-        const yOffset = Math.abs(index - (totalCards - 1) / 2) * 3; 
+        // 角度也稍微隨螢幕調整，手機版角度小一點比較好看
+        const maxAngle = window.innerWidth < 768 ? 40 : 60; // 總展開角度
+        const angleStep = maxAngle / (totalCards - 1);
+        const angle = (index - (totalCards - 1) / 2) * angleStep;
+        
+        // 垂直位移：兩側下沉
+        const yOffset = Math.abs(index - (totalCards - 1) / 2) * (window.innerWidth < 768 ? 2 : 4); 
 
         cardEl.style.transform = `rotate(${angle}deg) translateY(${yOffset}px)`;
         
-        const isMobile = window.innerWidth < 768;
-        const step = isMobile ? 12 : 25; 
-        const cardWidth = isMobile ? 90 : 100; 
-        
+        // 計算 Left 位置
+        // 中心點是 50%，然後往左右推
         const offset = (index - (totalCards - 1) / 2) * step;
         cardEl.style.left = `calc(50% + ${offset}px - ${cardWidth / 2}px)`; 
 
@@ -164,10 +227,7 @@ function calculateDestiny(birthdayString, cardId) {
     const birthDay = dateObj.getDate();
     const currentYear = new Date().getFullYear();
     
-    // 1. 地點演算法 (Where): (出生年 + 卡牌ID + 當前年) % 3
     const cityIndex = (birthYear + cardId + currentYear) % 3;
-
-    // 2. 任務演算法 (What): (月 + 日) % 9
     const missionIndex = (birthMonth + birthDay) % 9;
 
     return { cityIndex, missionIndex };
@@ -180,13 +240,11 @@ function showResult() {
     const desireCard = selectedCards[1];  
     const destCardRaw = selectedCards[2]; 
 
-    // 取得運算結果
     const { cityIndex, missionIndex } = calculateDestiny(userBirthday, destCardRaw.id);
     
     const finalDest = destCardRaw.cities[cityIndex];
     const finalMission = missionData[missionIndex];
 
-    // 渲染卡片
     resultCardsContainer.innerHTML = '';
     selectedCards.forEach((card, index) => {
         const wrapper = document.createElement('div');
@@ -210,7 +268,6 @@ function showResult() {
         resultCardsContainer.appendChild(wrapper);
     });
 
-    // 渲染文案
     analysisContent.innerHTML = `
         <div class="analysis-section">
             <h4>✦ 靈魂現狀</h4>
