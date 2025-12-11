@@ -24,9 +24,14 @@ function initCards() {
     
     cardContainer.innerHTML = '';
     selectedCards = [];
-    if(resultModal) resultModal.style.display = 'none';
+    
+    // 隱藏彈窗並解鎖滾動
+    if(resultModal) {
+        resultModal.style.display = 'none';
+        document.body.style.overflow = ''; // 恢復背景滾動
+    }
 
-    // 1. 修改這裡：顯示所有牌 (22張)，不再切片
+    // 1. 顯示所有牌 (22張)
     displayedCards = [...cardData].sort(() => Math.random() - 0.5);
 
     // 2. 渲染卡片
@@ -37,23 +42,19 @@ function initCards() {
         
         const totalCards = displayedCards.length;
         
-        // --- 關鍵修改：調整排列密度 ---
-        // 角度間距變小：從 5度 改成 3度 (避免兩側太開)
+        // 排列密度
         const angle = (index - (totalCards - 1) / 2) * 3; 
-        
-        // 垂直下沉幅度調整
         const yOffset = Math.abs(index - (totalCards - 1) / 2) * 3; 
 
         cardEl.style.transform = `rotate(${angle}deg) translateY(${yOffset}px)`;
         
-        // 水平間距 (Step) 變小：桌面版 25px，手機版 12px (讓牌疊在一起)
         const isMobile = window.innerWidth < 768;
         const step = isMobile ? 12 : 25; 
-        const cardWidth = isMobile ? 80 : 100; // 對應 CSS 的寬度
+        const cardWidth = isMobile ? 90 : 100; // 對應 CSS
         
         const offset = (index - (totalCards - 1) / 2) * step;
         
-        // 修正 left 計算，確保置中
+        // 修正 left 計算
         cardEl.style.left = `calc(50% + ${offset}px - ${cardWidth / 2}px)`; 
 
         cardEl.addEventListener('click', () => handleCardClick(cardEl, card));
@@ -130,19 +131,21 @@ function showResult() {
         </div>
     `;
 
-    if(resultModal) resultModal.style.display = 'flex';
+    if(resultModal) {
+        resultModal.style.display = 'flex';
+        // 關鍵：鎖定背景滾動
+        document.body.style.overflow = 'hidden';
+    }
 }
 
 if(closeBtn) {
     closeBtn.addEventListener('click', () => {
-        resultModal.style.display = 'none';
-        initCards(); 
+        initCards(); // initCards 裡包含了恢復滾動的邏輯
     });
 }
 
 window.addEventListener('click', (e) => {
     if (e.target === resultModal) {
-        resultModal.style.display = 'none';
         initCards();
     }
 });
