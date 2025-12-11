@@ -13,7 +13,7 @@ let userBirthday = "";
 let isLocked = false;
 
 const startScreen = document.getElementById('start-screen');
-const zodiacScreen = document.getElementById('zodiac-screen'); // 新增
+const zodiacScreen = document.getElementById('zodiac-screen'); 
 const startBtn = document.getElementById('start-btn');
 const mainInterface = document.getElementById('main-interface');
 const cardContainer = document.getElementById('card-container');
@@ -23,7 +23,6 @@ const shuffleBtn = document.getElementById('shuffle-btn');
 const analysisContent = document.getElementById('analysis-content');
 const resultCardsContainer = document.querySelector('.result-cards');
 
-// 星座元素
 const zodiacIcon = document.getElementById('zodiac-icon');
 const zodiacName = document.getElementById('zodiac-name');
 const zodiacEnergy = document.getElementById('zodiac-energy');
@@ -106,46 +105,59 @@ function getWheelValue(wheel) {
     return active ? active.dataset.val.toString() : null;
 }
 
-// === 星座計算邏輯 ===
+// === SVG 星座圖示庫 ===
+const zodiacSVGs = {
+    aries: `<svg class="zodiac-svg" viewBox="0 0 24 24"><path d="M12 21a9 9 0 0 0 9-9h-2a7 7 0 0 1-7 7 7 7 0 0 1-7-7H3a9 9 0 0 0 9 9z"/><path d="M7 6.5a2.5 2.5 0 1 1 5 0 2.5 2.5 0 1 1 5 0"/></svg>`, // 牡羊(簡化) -> 改用更準確的路徑
+    // 為了視覺美觀，這裡使用標準天文符號的 Path
+    // 牡羊
+    "♈": `<svg class="zodiac-svg" viewBox="0 0 24 24"><path d="M2 5a9 9 0 0 1 9 9 9 9 0 0 1 9-9M11 21V11M13 21V11"/></svg>`,
+    // 金牛
+    "♉": `<svg class="zodiac-svg" viewBox="0 0 24 24"><circle cx="12" cy="14" r="5"/><path d="M6 9a6 6 0 0 1 12 0"/></svg>`,
+    // 雙子
+    "♊": `<svg class="zodiac-svg" viewBox="0 0 24 24"><path d="M6 4h12M6 20h12M9 4v16M15 4v16"/></svg>`,
+    // 巨蟹
+    "♋": `<svg class="zodiac-svg" viewBox="0 0 24 24"><path d="M6 12a3 3 0 1 0 3-3"/><path d="M18 12a3 3 0 1 0-3 3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="12" r="3"/></svg>`, 
+    // 獅子 (修正路徑)
+    "♌": `<svg class="zodiac-svg" viewBox="0 0 24 24"><circle cx="6" cy="16" r="2"/><path d="M7.5 14.5c1.5-2 3-4 6.5-4s5 2.5 5 5.5a2.5 2.5 0 0 1-5 0"/></svg>`,
+    // 處女
+    "♍": `<svg class="zodiac-svg" viewBox="0 0 24 24"><path d="M5 5v14c0 1.5 2 2 2 0V9c0-1.5 3-1.5 3 0v10c0 1.5 2 2 2 0V9c0-1.5 3-1.5 3 0v8a4 4 0 0 1-4 4"/></svg>`,
+    // 天秤
+    "♎": `<svg class="zodiac-svg" viewBox="0 0 24 24"><path d="M5 20h14M5 16h14"/><path d="M12 4a5 5 0 0 0-5 5h10a5 5 0 0 0-5-5z"/></svg>`,
+    // 天蠍
+    "♏": `<svg class="zodiac-svg" viewBox="0 0 24 24"><path d="M5 6v12c0 1.5 2 2 2 0V9c0-1.5 3-1.5 3 0v9c0 1.5 2 2 2 0V9c0-1.5 3-1.5 3 0v9l4 3"/></svg>`,
+    // 射手
+    "♐": `<svg class="zodiac-svg" viewBox="0 0 24 24"><path d="M5 19l14-14M19 5v7M19 5h-7M5 19l3 3"/></svg>`,
+    // 摩羯
+    "♑": `<svg class="zodiac-svg" viewBox="0 0 24 24"><path d="M4 15a4 4 0 1 1 4-4 4 4 0 0 1 4 4v3a3 3 0 0 1-6 0"/></svg>`,
+    // 水瓶
+    "♒": `<svg class="zodiac-svg" viewBox="0 0 24 24"><path d="M3 10l3-3 3 3 3-3 3 3 3-3 3 3M3 17l3-3 3 3 3-3 3 3 3-3 3 3"/></svg>`,
+    // 雙魚
+    "♓": `<svg class="zodiac-svg" viewBox="0 0 24 24"><path d="M5 5c5 5 5 11 0 16M19 5c-5 5-5 11 0 16M5 13h14"/></svg>`
+};
+
 function getZodiac(month, day) {
     const zodiacs = [
-        { name: "摩羯座", icon: "♑", energy: "土象能量・結構與野心", start: 22 },
-        { name: "水瓶座", icon: "♒", energy: "風象能量・革新與自由", start: 20 },
-        { name: "雙魚座", icon: "♓", energy: "水象能量・夢幻與慈悲", start: 19 },
-        { name: "牡羊座", icon: "♈", energy: "火象能量・行動與熱情", start: 21 },
-        { name: "金牛座", icon: "♉", energy: "土象能量・感官與穩定", start: 20 },
-        { name: "雙子座", icon: "♊", energy: "風象能量・交流與多變", start: 21 },
-        { name: "巨蟹座", icon: "♋", energy: "水象能量・情感與守護", start: 22 },
-        { name: "獅子座", icon: "♌", energy: "火象能量・創造與榮耀", start: 23 },
-        { name: "處女座", icon: "♍", energy: "土象能量・細節與服務", start: 23 },
-        { name: "天秤座", icon: "♎", energy: "風象能量・和諧與關係", start: 23 },
-        { name: "天蠍座", icon: "♏", energy: "水象能量・直覺與轉化", start: 24 },
-        { name: "射手座", icon: "♐", energy: "火象能量・探索與信念", start: 22 },
-        { name: "摩羯座", icon: "♑", energy: "土象能量・結構與野心", start: 22 } // 用來處理12月底
+        { name: "摩羯座", iconKey: "♑", energy: "土象能量・結構與野心", start: 22 },
+        { name: "水瓶座", iconKey: "♒", energy: "風象能量・革新與自由", start: 20 },
+        { name: "雙魚座", iconKey: "♓", energy: "水象能量・夢幻與慈悲", start: 19 },
+        { name: "牡羊座", iconKey: "♈", energy: "火象能量・行動與熱情", start: 21 },
+        { name: "金牛座", iconKey: "♉", energy: "土象能量・感官與穩定", start: 20 },
+        { name: "雙子座", iconKey: "♊", energy: "風象能量・交流與多變", start: 21 },
+        { name: "巨蟹座", iconKey: "♋", energy: "水象能量・情感與守護", start: 22 },
+        { name: "獅子座", iconKey: "♌", energy: "火象能量・創造與榮耀", start: 23 },
+        { name: "處女座", iconKey: "♍", energy: "土象能量・細節與服務", start: 23 },
+        { name: "天秤座", iconKey: "♎", energy: "風象能量・和諧與關係", start: 23 },
+        { name: "天蠍座", iconKey: "♏", energy: "水象能量・直覺與轉化", start: 24 },
+        { name: "射手座", iconKey: "♐", energy: "火象能量・探索與信念", start: 22 },
+        { name: "摩羯座", iconKey: "♑", energy: "土象能量・結構與野心", start: 22 } 
     ];
     
-    // 陣列索引對應月份 (0=1月, 1=2月...)
-    // 摩羯(1月) index=0, 水瓶(2月) index=1...
-    // 但因為有跨月問題，邏輯稍微調整：
-    // 如果 day < start，則是上個月的星座；否則就是這個月的星座。
-    // 注意：zodiacs[0] 是摩羯(對應1月開頭)，zodiacs[12] 也是摩羯(對應12月結尾)
-    
-    // 修正索引：月份 - 1
     let index = month - 1;
     if (day < zodiacs[index + 1].start) {
-        return zodiacs[index]; // 其實是上一個星座，這裡陣列順序已經排好
-        // 修正邏輯：摩羯(1/1-1/19) -> index 0
+        return zodiacs[index]; 
     }
     
-    // 簡單查表法：
-    // 1.1~1.19 摩羯(0), 1.20~ 水瓶(1)
-    // 2.1~2.18 水瓶(1), 2.19~ 雙魚(2)
-    // ...
-    
     const boundaries = [20, 19, 21, 20, 21, 22, 23, 23, 23, 24, 22, 22];
-    // Jan(0): 20 -> 摩羯/水瓶
-    // Dec(11): 22 -> 射手/摩羯
-    
     const m = parseInt(month) - 1;
     const d = parseInt(day);
     
@@ -171,23 +183,20 @@ if (startBtn) {
         const dd = d.padStart(2, '0');
         userBirthday = `${y}-${mm}-${dd}`;
         
-        // 1. 計算星座
         const zodiac = getZodiac(m, d);
-        
-        // 2. 顯示星座過場
-        zodiacIcon.textContent = zodiac.icon;
+        // === 關鍵修改：使用 innerHTML 插入 SVG 代碼 ===
+        zodiacIcon.innerHTML = zodiacSVGs[zodiac.iconKey]; 
         zodiacName.textContent = zodiac.name;
         zodiacEnergy.textContent = zodiac.energy;
         
-        startScreen.style.opacity = '0'; // 淡出開始頁
+        startScreen.style.opacity = '0'; 
         
         setTimeout(() => {
             startScreen.style.display = 'none';
-            zodiacScreen.style.display = 'flex'; // 顯示星座頁
+            zodiacScreen.style.display = 'flex'; 
             
-            // 3. 等待動畫結束 (2.5秒) 後進入主畫面
             setTimeout(() => {
-                zodiacScreen.style.opacity = '0'; // 淡出星座頁
+                zodiacScreen.style.opacity = '0'; 
                 setTimeout(() => {
                     zodiacScreen.style.display = 'none';
                     mainInterface.style.display = 'flex';
