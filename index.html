@@ -16,8 +16,19 @@
     <div id="start-screen">
         <p class="intro-text">輸入你的誕生日<br>連結宇宙流年</p>
         
-        <div class="date-picker-wrapper">
-            <input type="date" id="birthday-input" required>
+        <div class="date-scroll-wrapper">
+            <div class="select-group">
+                <label>Year</label>
+                <select id="birth-year" class="scroll-select"></select>
+            </div>
+            <div class="select-group">
+                <label>Month</label>
+                <select id="birth-month" class="scroll-select"></select>
+            </div>
+            <div class="select-group">
+                <label>Day</label>
+                <select id="birth-day" class="scroll-select"></select>
+            </div>
         </div>
 
         <button id="start-btn">開始靈魂探索</button>
