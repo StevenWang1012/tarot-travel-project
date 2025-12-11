@@ -6,7 +6,6 @@
     padding: 0;
     box-sizing: border-box;
     font-family: "Microsoft JhengHei", "PingFang TC", sans-serif;
-    /* 禁止手機端長按選取文字，增加 APP 感 */
     user-select: none;
     -webkit-user-select: none;
 }
@@ -15,25 +14,21 @@ body {
     background: #0b0b15;
     background-image: radial-gradient(circle at top, #2a1a3e 0%, #000 100%);
     color: #fff;
-    /* 使用 100dvh (動態視窗高度) 解決手機瀏覽器網址列遮擋問題，若不支援則退回 100vh */
     height: 100vh;
     height: 100dvh; 
     position: relative;
-    overflow: hidden; /* 禁止滑動，固定版面 */
+    overflow: hidden; 
     display: flex;       
     flex-direction: column;
-    align-items: center; /* 水平置中 */
-    justify-content: center; /* 新增：垂直置中，讓所有內容集中在畫面中央 */
-    /* 禁止橡皮筋效果 */
+    align-items: center; 
+    justify-content: center; 
     overscroll-behavior: none;
-    padding-bottom: 20px; /* 底部留點緩衝 */
+    padding-bottom: 20px;
 }
 
-/* 頁頭標題 */
 #top-header {
     text-align: center;
-    /* padding: 20px 0;  <-- 減少 padding */
-    margin-bottom: 15px; /* 改用 margin 控制間距 */
+    margin-bottom: 15px; 
     z-index: 10;
     flex-shrink: 0;
 }
@@ -45,10 +40,92 @@ body {
     letter-spacing: 5px;
 }
 
-/* 詢問文字 */
+/* === 開始畫面 === */
+#start-screen {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    max-width: 400px;
+    z-index: 20;
+    opacity: 1;
+    transition: opacity 0.8s ease;
+}
+
+.intro-text {
+    text-align: center;
+    font-size: 1.2rem;
+    line-height: 1.6;
+    color: #ddd;
+    margin-bottom: 30px;
+    letter-spacing: 2px;
+    text-shadow: 0 0 10px rgba(255,255,255,0.3);
+}
+
+.date-picker-wrapper {
+    position: relative;
+    margin-bottom: 40px;
+    border-bottom: 2px solid #dfa6ff;
+    width: 200px;
+}
+
+#birthday-input {
+    background: transparent;
+    border: none;
+    color: #ffd700;
+    font-size: 1.5rem;
+    padding: 10px;
+    text-align: center;
+    width: 100%;
+    outline: none;
+    font-family: monospace;
+    cursor: pointer;
+}
+
+#birthday-input::-webkit-calendar-picker-indicator {
+    filter: invert(1);
+    opacity: 0.6;
+    cursor: pointer;
+}
+
+#start-btn {
+    background: linear-gradient(45deg, #4a1c40, #250935);
+    border: 1px solid #ffd700;
+    color: #ffd700;
+    padding: 15px 40px;
+    border-radius: 50px;
+    font-size: 1.2rem;
+    letter-spacing: 2px;
+    cursor: pointer;
+    box-shadow: 0 0 15px rgba(255, 215, 0, 0.2);
+    transition: all 0.3s ease;
+}
+
+#start-btn:hover {
+    background: #ffd700;
+    color: #250935;
+    box-shadow: 0 0 25px rgba(255, 215, 0, 0.6);
+    transform: scale(1.05);
+}
+
+/* === 主要介面 === */
+#main-interface {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    animation: fadeIn 1s ease forwards;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
 #question-text {
     text-align: center;
-    margin-bottom: 20px; /* 增加與卡片的距離 */
+    margin-bottom: 20px;
     z-index: 10;
     padding: 0 20px;
     flex-shrink: 0;
@@ -66,18 +143,14 @@ body {
     color: #aaa;
 }
 
-/* 卡片容器 */
 .card-container {
     width: 100%;
-    height: 300px; /* 設定固定高度 */
+    height: 300px;
     position: relative;
-    /* margin-top: 10px; <-- 移除 */
     perspective: 1000px;
-    /* flex-grow: 1; <-- 關鍵修改：移除自動伸展，讓它不再撐開空間 */
-    overflow: visible; /* 允許卡片在旋轉時稍微超出邊界，避免被切 */
+    overflow: visible;
 }
 
-/* 卡片樣式 */
 .tarot-card {
     width: 90px;
     height: 160px;
@@ -85,12 +158,10 @@ body {
     border: 2px solid #ffd700;
     border-radius: 8px;
     position: absolute;
-    /* bottom: 30px; <-- 修改這裡 */
-    bottom: 70px; /* 將卡片在容器內向上移動，遠離底部邊緣 */
+    bottom: 70px;
     cursor: pointer;
     transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
     box-shadow: 0 5px 15px rgba(0,0,0,0.5);
-    /* 牌背花紋 */
     background-image: 
         linear-gradient(135deg, rgba(255,215,0,0.1) 25%, transparent 25%, transparent 50%, rgba(255,215,0,0.1) 50%, rgba(255,215,0,0.1) 75%, transparent 75%, transparent),
         linear-gradient(135deg, #4a1c40 0%, #180529 100%);
@@ -122,9 +193,8 @@ body {
     z-index: 999 !important;
 }
 
-/* 洗牌按鈕 */
 #shuffle-btn {
-    margin-top: 20px; /* 與卡片保持距離 */
+    margin-top: 20px;
     background: transparent;
     border: 1px solid #dfa6ff;
     color: #dfa6ff;
@@ -142,7 +212,7 @@ body {
     color: #000;
 }
 
-/* === 結果彈窗 (保持不變) === */
+/* === 結果彈窗 === */
 .modal {
     display: none;
     position: fixed;
@@ -332,7 +402,6 @@ body {
         width: 100px;
         height: 180px;
     }
-    /* 桌面版可以稍微放鬆一點 */
     body {
         justify-content: flex-start;
         padding-top: 30px;
