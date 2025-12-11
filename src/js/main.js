@@ -1,77 +1,161 @@
-// 模擬塔罗牌數據（可替換為真實數據）
-const tarotData = [
-    { id: 1, name: "愚者", img: "https://upload.wikimedia.org/wikipedia/commons/9/90/RWS_Tarot_00_Fool.jpg", dest: "希臘", desc: "適合冒險的旅程，探索未知的風景。" },
-    { id: 2, name: "魔術師", img: "https://upload.wikimedia.org/wikipedia/commons/5/5f/RWS_Tarot_01_Magician.jpg", dest: "日本", desc: "充滿創意的旅程，體驗獨特文化。" },
-    { id: 3, name: "女祭司", img: "https://upload.wikimedia.org/wikipedia/commons/8/88/RWS_Tarot_02_High_Priestess.jpg", dest: "埃及", desc: "神秘的旅程，探索古老文明的智慧。" },
-    { id: 4, name: "女皇", img: "https://upload.wikimedia.org/wikipedia/commons/b/b4/RWS_Tarot_03_Empress.jpg", dest: "義大利", desc: "享受美食與藝術的旅程，感受生活美好。" },
-    { id: 5, name: "皇帝", img: "https://upload.wikimedia.org/wikipedia/commons/9/9a/RWS_Tarot_04_Emperor.jpg", dest: "英國", desc: "充滿歷史與莊嚴的旅程，體驗皇室文化。" },
-    { id: 6, name: "教皇", img: "https://upload.wikimedia.org/wikipedia/commons/0/06/RWS_Tarot_05_Hierophant.jpg", dest: "西班牙", desc: "感受宗教與傳統交融的獨特魅力。" },
-    { id: 7, name: "戀人", img: "https://upload.wikimedia.org/wikipedia/commons/2/2a/RWS_Tarot_06_Lovers.jpg", dest: "法國", desc: "浪漫的旅程，適合與心愛的人同行。" },
-    { id: 8, name: "戰車", img: "https://upload.wikimedia.org/wikipedia/commons/1/19/RWS_Tarot_07_Chariot.jpg", dest: "德國", desc: "充滿動力的旅程，探索精密與效率之美。" },
-    { id: 9, name: "力量", img: "https://upload.wikimedia.org/wikipedia/commons/f/f8/RWS_Tarot_08_Strength.jpg", dest: "美國", desc: "充滿活力的旅程，挑戰自我極限。" },
-    { id: 10, name: "隱者", img: "https://upload.wikimedia.org/wikipedia/commons/7/73/RWS_Tarot_09_Hermit.jpg", dest: "挪威", desc: "寧靜的旅程，與自然深度連接。" }
-];
+import { tarotData } from './data.js';
 
-// 全局變量
-let selectedCards = [];
+// 全局變數
+let displayedCards = []; // 桌面上顯示的牌
+let selectedCards = [];  // 使用者選中的牌 (按順序)
 const cardContainer = document.getElementById('card-container');
 const resultModal = document.getElementById('result-modal');
 const closeBtn = document.querySelector('.close-btn');
 const shuffleBtn = document.getElementById('shuffle-btn');
+const analysisContent = document.getElementById('analysis-content');
+const resultCardsContainer = document.querySelector('.result-cards');
 
-// 初始化卡片
+// 初始化：頁面載入時洗牌
+document.addEventListener('DOMContentLoaded', initCards);
+
+// 洗牌並發牌
 function initCards() {
-    cardContainer.innerHTML = ''; // 清空容器
-    selectedCards = []; // 重置選中狀態
+    cardContainer.innerHTML = '';
+    selectedCards = [];
+    resultModal.style.display = 'none';
 
-    // 隨機顯示8張牌（扇形排列）
-    const shuffled = [...tarotData].sort(() => Math.random() - 0.5).slice(0, 8);
-    shuffled.forEach((card, index) => {
+    // 1. 從完整牌庫中隨機抽取 10 張牌放在桌面上供選擇
+    // (全顯示22張會太擠，隨機取10張營造"命運"感)
+    displayedCards = [...tarotData]
+        .sort(() => Math.random() - 0.5)
+        .slice(0, 10);
+
+    // 2. 渲染卡片到介面
+    displayedCards.forEach((card, index) => {
         const cardEl = document.createElement('div');
         cardEl.className = 'tarot-card';
         cardEl.dataset.id = card.id;
-        // 扇形排列（左右對稱）
-        const angle = (index - 3.5) * 15; // 中間對齊，每張牌相差15度
-        cardEl.style.transform = `rotate(${angle}deg)`;
-        cardEl.style.left = `calc(50% - 60px)`; // 水平居中
-        cardEl.style.zIndex = index + 1; // 避免完全重疊
+        
+        // 扇形排列計算
+        const totalCards = displayedCards.length;
+        const angle = (index - (totalCards - 1) / 2) * 5; // 每張相差5度
+        const yOffset = Math.abs(index - (totalCards - 1) / 2) * 5; // 兩側稍微下沉
 
-        // 點擊選中/取消選中
-        cardEl.addEventListener('click', () => toggleSelect(cardEl, card));
+        cardEl.style.transform = `rotate(${angle}deg) translateY(${yOffset}px)`;
+        
+        // 計算水平位置，讓它們稍微重疊但展開
+        // 視窗寬度越小，間距應該越小
+        const step = window.innerWidth < 768 ? 30 : 60; 
+        const startLeft = 50; // 50% 處
+        // 這裡用 CSS calc 來定位，讓所有牌以中心為基準向左右展開
+        // 簡單點：直接用 flex 或者 absolute left 計算
+        // 為了扇形效果，這裡手動計算 left
+        // 假設中心是 50%，每張牌偏移 step
+        const offset = (index - (totalCards - 1) / 2) * step;
+        cardEl.style.left = `calc(50% + ${offset}px - 60px)`; // 60px是卡片寬度的一半
+
+        // 點擊事件
+        cardEl.addEventListener('click', () => handleCardClick(cardEl, card));
         
         cardContainer.appendChild(cardEl);
     });
 }
 
-// 切換卡片選中狀態
-function toggleSelect(cardEl, cardData) {
-    const isSelected = cardEl.classList.contains('selected');
-
-    if (isSelected) {
-        // 取消選中
+// 處理卡片點擊
+function handleCardClick(cardEl, cardData) {
+    // 如果已經選了這張，則取消選擇
+    if (selectedCards.some(c => c.id === cardData.id)) {
         cardEl.classList.remove('selected');
         selectedCards = selectedCards.filter(c => c.id !== cardData.id);
-    } else {
-        // 最多選3張
-        if (selectedCards.length >= 3) {
-            alert('最多選擇3張牌哦！');
-            return;
-        }
-        // 選中
-        cardEl.classList.add('selected');
-        selectedCards.push(cardData);
+        return;
+    }
 
-        // 選滿3張顯示結果
-        if (selectedCards.length === 3) {
-            setTimeout(showResult, 500);
-        }
+    // 檢查是否已選滿 3 張
+    if (selectedCards.length >= 3) {
+        return; // 不做任何事，或者提示已滿
+    }
+
+    // 選取卡片
+    cardEl.classList.add('selected');
+    selectedCards.push(cardData);
+
+    // 如果選滿 3 張，延遲後顯示結果
+    if (selectedCards.length === 3) {
+        setTimeout(showResult, 800); // 稍微停頓讓使用者看到選取狀態
     }
 }
 
-// 顯示結果彈窗
+// 顯示結果
 function showResult() {
-    // 隨機選取一個目的地作為結果（以第三張牌為主）
-    const resultCard = selectedCards[2];
-    
-    // 顯示選中的3張牌
-    const resultCardsContainer =
+    if (selectedCards.length < 3) return;
+
+    // 定義三張牌的角色
+    const currentCard = selectedCards[0]; // 現狀
+    const desireCard = selectedCards[1];  // 渴望/建議
+    const destCard = selectedCards[2];    // 最終目的地
+
+    // 1. 渲染上方三張牌圖示
+    resultCardsContainer.innerHTML = '';
+    selectedCards.forEach((card, index) => {
+        const wrapper = document.createElement('div');
+        wrapper.className = 'result-card-item';
+        
+        // 標籤：第幾張牌
+        const label = document.createElement('span');
+        label.className = 'card-label';
+        label.textContent = index === 0 ? "現狀" : index === 1 ? "指引" : "目的地";
+
+        const img = document.createElement('img');
+        img.src = card.img;
+        img.alt = card.card;
+        img.className = 'tarot-img';
+
+        const name = document.createElement('p');
+        name.textContent = card.card.split('.')[1]; // 去掉前面的數字編號，只留牌名
+
+        wrapper.appendChild(label);
+        wrapper.appendChild(img);
+        wrapper.appendChild(name);
+        resultCardsContainer.appendChild(wrapper);
+    });
+
+    // 2. 渲染三段式文字分析
+    // 使用 innerHTML 構建結構
+    analysisContent.innerHTML = `
+        <div class="analysis-section">
+            <h4>✦ 靈魂現狀</h4>
+            <p>抽到<strong>「${currentCard.card}」</strong>，象徵你目前的能量關鍵字是<span class="highlight">${currentCard.keywords}</span>。</p>
+        </div>
+        
+        <div class="analysis-section">
+            <h4>✦ 內在指引</h4>
+            <p>你的靈魂深處告訴你：<strong>「${desireCard.advice}」</strong>這張牌暗示你需要${desireCard.keywords}。</p>
+        </div>
+
+        <div class="dest-divider">▼ 宇宙為你指引的命定之地 ▼</div>
+
+        <div class="dest-section">
+            <h2 class="dest-title">
+                <img src="${destCard.flag}" class="dest-flag" alt="flag"> 
+                ${destCard.dest}
+            </h2>
+            <p class="dest-quote">"${destCard.text}"</p>
+        </div>
+    `;
+
+    // 顯示彈窗
+    resultModal.style.display = 'flex';
+}
+
+// 關閉彈窗
+closeBtn.addEventListener('click', () => {
+    resultModal.style.display = 'none';
+    // 選擇性：關閉後是否重置？通常建議重置，讓使用者可以重玩
+    initCards(); 
+});
+
+// 點擊遮罩層也可關閉
+window.addEventListener('click', (e) => {
+    if (e.target === resultModal) {
+        resultModal.style.display = 'none';
+        initCards();
+    }
+});
+
+// 重新洗牌按鈕
+shuffleBtn.addEventListener('click', initCards);
