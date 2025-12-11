@@ -1,4 +1,4 @@
-/* src/css/style.css - 混搭模組樣式版 */
+/* src/css/style.css - 完美滾輪版 */
 
 /* 全局樣式 */
 * {
@@ -63,30 +63,57 @@ body {
     text-shadow: 0 0 10px rgba(255,255,255,0.3);
 }
 
-.date-picker-wrapper {
-    position: relative;
+/* === 新增：滾輪容器樣式 === */
+.date-scroll-wrapper {
+    display: flex;
+    justify-content: center;
+    gap: 15px; /* 滾輪之間的間距 */
     margin-bottom: 40px;
-    border-bottom: 2px solid #dfa6ff;
-    width: 200px;
-}
-
-#birthday-input {
-    background: transparent;
-    border: none;
-    color: #ffd700;
-    font-size: 1.5rem;
-    padding: 10px;
-    text-align: center;
     width: 100%;
-    outline: none;
-    font-family: monospace;
-    cursor: pointer;
+    padding: 0 20px;
 }
 
-#birthday-input::-webkit-calendar-picker-indicator {
-    filter: invert(1);
-    opacity: 0.6;
+.select-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 30%; /* 三個平分寬度 */
+}
+
+.select-group label {
+    font-size: 0.8rem;
+    color: #dfa6ff;
+    margin-bottom: 5px;
+    letter-spacing: 1px;
+}
+
+.scroll-select {
+    width: 100%;
+    padding: 10px 5px;
+    font-size: 1.2rem;
+    color: #ffd700;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid #dfa6ff;
+    border-radius: 8px;
+    text-align: center;
+    outline: none;
     cursor: pointer;
+    appearance: none; /* 移除預設箭頭 */
+    -webkit-appearance: none;
+    text-align-last: center; /* 強制文字置中 */
+    box-shadow: 0 0 10px rgba(223, 166, 255, 0.1);
+}
+
+.scroll-select:focus {
+    border-color: #ffd700;
+    box-shadow: 0 0 15px rgba(255, 215, 0, 0.3);
+}
+
+/* 針對 iOS 滾輪的優化 */
+@media (max-width: 768px) {
+    .scroll-select {
+        font-size: 1.1rem; /* 手機版字體微調 */
+    }
 }
 
 #start-btn {
@@ -284,164 +311,4 @@ body {
 .tarot-img {
     width: 100%; 
     height: auto;
-    border-radius: 4px;
-    border: 1px solid #ffd700;
-    box-shadow: 0 0 5px rgba(0,0,0,0.5);
-    aspect-ratio: 2/3.5; 
-    object-fit: cover;
-}
-
-.result-card-item p {
-    font-size: 0.7rem;
-    margin-top: 3px;
-    color: #fff;
-    white-space: nowrap; 
-    overflow: hidden;
-    text-overflow: ellipsis;
-    width: 100%;
-}
-
-.result-text {
-    text-align: left;
-    padding: 0 5px;
-    color: #ddd;
-    line-height: 1.5;
-}
-
-.analysis-section {
-    margin-bottom: 12px;
-    border-left: 2px solid #dfa6ff;
-    padding-left: 8px;
-}
-
-.analysis-section h4 {
-    color: #dfa6ff;
-    margin-bottom: 3px;
-    font-size: 0.9rem;
-}
-
-.analysis-section p {
-    font-size: 0.9rem;
-}
-
-.highlight {
-    color: #ffd700;
-    font-weight: bold;
-}
-
-.dest-divider {
-    text-align: center;
-    color: #666;
-    margin: 15px 0;
-    font-size: 0.8rem;
-    letter-spacing: 2px;
-}
-
-.dest-section {
-    text-align: center;
-    background: rgba(255, 255, 255, 0.05);
-    padding: 15px;
-    border-radius: 10px;
-    margin-bottom: 15px;
-    border: 1px solid rgba(255, 215, 0, 0.3);
-}
-
-.dest-title {
-    color: #ffd700;
-    font-size: 1.5rem;
-    margin-bottom: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    flex-wrap: wrap; 
-}
-
-.dest-flag {
-    width: 30px;
-    height: auto;
-    border-radius: 4px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.5);
-}
-
-.dest-quote {
-    font-style: italic;
-    color: #fff;
-    font-size: 0.9rem; 
-}
-
-/* === 新增：任務區樣式 === */
-.mission-section {
-    margin-top: 15px;
-    padding-top: 15px;
-    border-top: 1px dashed #666;
-    text-align: center;
-}
-
-.mission-label {
-    display: inline-block;
-    background: #dfa6ff;
-    color: #000;
-    padding: 2px 10px;
-    border-radius: 20px;
-    font-size: 0.8rem;
-    font-weight: bold;
-    margin-bottom: 8px;
-}
-
-.mission-title {
-    color: #fff;
-    font-size: 1.2rem;
-    margin-bottom: 5px;
-}
-
-.mission-desc {
-    font-size: 0.9rem;
-    color: #ccc;
-    font-style: italic;
-}
-
-.line-btn {
-    display: block;
-    width: 100%; 
-    background: #06C755;
-    color: #fff;
-    padding: 12px 0;
-    border-radius: 30px;
-    text-decoration: none;
-    font-weight: bold;
-    text-align: center;
-    transition: all 0.3s ease;
-    box-shadow: 0 5px 15px rgba(6, 199, 85, 0.3);
-    font-size: 1rem;
-    margin-top: 20px;
-}
-
-.line-btn:hover {
-    background: #05b04a;
-    transform: translateY(-2px);
-}
-
-@media (min-width: 768px) {
-    .modal-content {
-        padding: 30px;
-        max-width: 600px;
-    }
-    .result-cards {
-        gap: 15px;
-    }
-    .tarot-card {
-        width: 100px;
-        height: 180px;
-    }
-    body {
-        justify-content: flex-start;
-        padding-top: 30px;
-    }
-    .card-container {
-        height: 400px;
-    }
-    .tarot-card {
-        bottom: 100px;
-    }
-}
+    border-
