@@ -1,6 +1,5 @@
 // src/js/main.js
 
-// 檢查資料
 if (typeof window.tarotData === 'undefined' || typeof window.soulMissions === 'undefined') {
     console.error("錯誤：資料載入失敗，請確認 data.js 是否完整。");
 }
@@ -14,6 +13,7 @@ let userBirthday = "";
 let isLocked = false;
 
 const startScreen = document.getElementById('start-screen');
+const zodiacScreen = document.getElementById('zodiac-screen'); // 新增
 const startBtn = document.getElementById('start-btn');
 const mainInterface = document.getElementById('main-interface');
 const cardContainer = document.getElementById('card-container');
@@ -22,6 +22,11 @@ const closeBtn = document.querySelector('.close-btn');
 const shuffleBtn = document.getElementById('shuffle-btn');
 const analysisContent = document.getElementById('analysis-content');
 const resultCardsContainer = document.querySelector('.result-cards');
+
+// 星座元素
+const zodiacIcon = document.getElementById('zodiac-icon');
+const zodiacName = document.getElementById('zodiac-name');
+const zodiacEnergy = document.getElementById('zodiac-energy');
 
 const yearWheel = document.getElementById('year-wheel');
 const monthWheel = document.getElementById('month-wheel');
@@ -69,7 +74,6 @@ function populateWheel(container, max, min, selectedVal) {
 function createItem(container, val, selectedVal) {
     const div = document.createElement('div');
     div.className = 'wheel-item';
-    // 這裡只是顯示用的補0，不影響 dataset.val
     div.textContent = val < 10 ? `0${val}` : val;
     div.dataset.val = val;
     if (val === selectedVal) div.classList.add('active');
@@ -99,8 +103,57 @@ function highlightActive(wheel) {
 
 function getWheelValue(wheel) {
     const active = wheel.querySelector('.wheel-item.active');
-    // 確保回傳的是字串，方便後續處理
     return active ? active.dataset.val.toString() : null;
+}
+
+// === 星座計算邏輯 ===
+function getZodiac(month, day) {
+    const zodiacs = [
+        { name: "摩羯座", icon: "♑", energy: "土象能量・結構與野心", start: 22 },
+        { name: "水瓶座", icon: "♒", energy: "風象能量・革新與自由", start: 20 },
+        { name: "雙魚座", icon: "♓", energy: "水象能量・夢幻與慈悲", start: 19 },
+        { name: "牡羊座", icon: "♈", energy: "火象能量・行動與熱情", start: 21 },
+        { name: "金牛座", icon: "♉", energy: "土象能量・感官與穩定", start: 20 },
+        { name: "雙子座", icon: "♊", energy: "風象能量・交流與多變", start: 21 },
+        { name: "巨蟹座", icon: "♋", energy: "水象能量・情感與守護", start: 22 },
+        { name: "獅子座", icon: "♌", energy: "火象能量・創造與榮耀", start: 23 },
+        { name: "處女座", icon: "♍", energy: "土象能量・細節與服務", start: 23 },
+        { name: "天秤座", icon: "♎", energy: "風象能量・和諧與關係", start: 23 },
+        { name: "天蠍座", icon: "♏", energy: "水象能量・直覺與轉化", start: 24 },
+        { name: "射手座", icon: "♐", energy: "火象能量・探索與信念", start: 22 },
+        { name: "摩羯座", icon: "♑", energy: "土象能量・結構與野心", start: 22 } // 用來處理12月底
+    ];
+    
+    // 陣列索引對應月份 (0=1月, 1=2月...)
+    // 摩羯(1月) index=0, 水瓶(2月) index=1...
+    // 但因為有跨月問題，邏輯稍微調整：
+    // 如果 day < start，則是上個月的星座；否則就是這個月的星座。
+    // 注意：zodiacs[0] 是摩羯(對應1月開頭)，zodiacs[12] 也是摩羯(對應12月結尾)
+    
+    // 修正索引：月份 - 1
+    let index = month - 1;
+    if (day < zodiacs[index + 1].start) {
+        return zodiacs[index]; // 其實是上一個星座，這裡陣列順序已經排好
+        // 修正邏輯：摩羯(1/1-1/19) -> index 0
+    }
+    
+    // 簡單查表法：
+    // 1.1~1.19 摩羯(0), 1.20~ 水瓶(1)
+    // 2.1~2.18 水瓶(1), 2.19~ 雙魚(2)
+    // ...
+    
+    const boundaries = [20, 19, 21, 20, 21, 22, 23, 23, 23, 24, 22, 22];
+    // Jan(0): 20 -> 摩羯/水瓶
+    // Dec(11): 22 -> 射手/摩羯
+    
+    const m = parseInt(month) - 1;
+    const d = parseInt(day);
+    
+    if (d >= boundaries[m]) {
+        return zodiacs[m + 1];
+    } else {
+        return zodiacs[m];
+    }
 }
 
 if (startBtn) {
@@ -114,27 +167,34 @@ if (startBtn) {
             return;
         }
 
-        // === 關鍵修正：針對 Safari 的日期格式修復 ===
-        // 將 "1" 變成 "01"，確保格式為 "YYYY-MM-DD"
         const mm = m.padStart(2, '0');
         const dd = d.padStart(2, '0');
-        
         userBirthday = `${y}-${mm}-${dd}`;
         
-        // 偵錯用：您可以在朋友手機的 console 看到這個值，現在應該是標準格式了
-        console.log("User Birthday:", userBirthday);
+        // 1. 計算星座
+        const zodiac = getZodiac(m, d);
         
-        startBtn.textContent = "✦ 正在下載靈魂數據...";
-        startBtn.style.opacity = "0.8";
-
+        // 2. 顯示星座過場
+        zodiacIcon.textContent = zodiac.icon;
+        zodiacName.textContent = zodiac.name;
+        zodiacEnergy.textContent = zodiac.energy;
+        
+        startScreen.style.opacity = '0'; // 淡出開始頁
+        
         setTimeout(() => {
-            startScreen.style.opacity = '0';
+            startScreen.style.display = 'none';
+            zodiacScreen.style.display = 'flex'; // 顯示星座頁
+            
+            // 3. 等待動畫結束 (2.5秒) 後進入主畫面
             setTimeout(() => {
-                startScreen.style.display = 'none';
-                mainInterface.style.display = 'flex';
-                initCards(); 
-            }, 500);
-        }, 1000);
+                zodiacScreen.style.opacity = '0'; // 淡出星座頁
+                setTimeout(() => {
+                    zodiacScreen.style.display = 'none';
+                    mainInterface.style.display = 'flex';
+                    initCards(); 
+                }, 500);
+            }, 2500);
+        }, 500);
     });
 }
 
@@ -204,14 +264,9 @@ function handleCardClick(cardEl, cardData) {
     }
 }
 
-// === 核心運算 ===
 function calculateDestinyIndices(birthdayString, cardId, cityOptionsCount) {
-    // 這裡現在會接收到標準的 "1995-01-05"，Safari 就不會報錯了
     const dateObj = new Date(birthdayString);
-    
-    // 防呆檢查：如果日期還是無效，提供預設值
     if (isNaN(dateObj.getTime())) {
-        console.error("Invalid Date:", birthdayString);
         return { cityIndex: 0, missionIndex: 0 };
     }
 
